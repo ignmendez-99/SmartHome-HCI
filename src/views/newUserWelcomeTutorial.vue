@@ -140,36 +140,61 @@
                 this.deviceSelected = selectObj;
             },
             firstTimeRegistration: function(newHomeName, newRoomName, newDeviceName) {
-                this.axios.post(this.genericUrl + 'homes', {
+                const axios = require('axios');
+                const genericUrl = this.genericUrl;
+                var homeID;
+                var roomID;
+                var deviceID;
+                
+                axios.post(genericUrl + 'homes', {
                     name: newHomeName,
                     meta: {}
                 })
-                .then(function () {
-                    this.axios.post(`${this.genericUrl}rooms`, {
+                .then(function (response) {
+                    homeID = response.data.result.id;
+                    console.log("1. El id de la home creada es: " + homeID);
+                    axios.post(genericUrl + 'rooms', {
                         name: newRoomName,
                         meta: {}
                     })
-                    .then(function () {
-                        this.axios.post(`${this.genericUrl}devices`, {
+                    .then( (response) => {
+                        roomID = response.data.result.id;
+                        console.log("2. El id de la room creada es: " + roomID);
+                        axios.post(genericUrl + 'devices', {
                         type: {
                             id: "go46xmbqeomjrsjr"
                         },
                         name: newDeviceName,
                         meta: {}
                         })
-                        .then(function () {
-                            console.log("Logramos llegar hasta abajo de todo\n");
+                        .then( (response) => {
+                            deviceID = response.data.result.id;
+                            console.log("3. El id del device creado es: " + deviceID);
+                            axios.post(genericUrl + 'homes/' + homeID + "/rooms/" + roomID, {})
+                                .then( () => {
+                                    console.log("4. Se incluyó la room " + roomID + " en la home " + homeID);
+                                    axios.post(genericUrl + 'rooms/' + roomID + "/devices/" + deviceID, {})
+                                        .then( () => {
+                                            console.log("5. Se incluyó el device " + deviceID + " en la room " + roomID);
+                                        })
+                                        .catch(function () {
+                                            console.log("Fallo agregar el device a la room");
+                                        });
+                                })
+                                .catch(function () {
+                                    console.log("Fallo agregar la room a la home");
+                                });
                         })
-                        .catch(function () {
-                            console.log("Fallo crear un device");
+                        .catch(function (response) {
+                            console.log("Fallo crear un device " + response);
                         });
                     })
                     .catch(function () {
                         console.log("Fallo crear una Room");
                     });
                 })
-                .catch(function () {
-                    console.log("Fallo crear una Home");
+                .catch(function (response) {
+                    console.log(response);
                 });
 
                 
