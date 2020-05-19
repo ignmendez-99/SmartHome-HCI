@@ -7,7 +7,7 @@
     <v-layout row wrap justify-center>
       <v-flex class="mb-8">
         <p id="HomeTitle" text-align="center" class="display-3">Smart Home. Made Simple.</p>
-        <p id="HomeSubtitle" class="title">Get useful insights about your devices usage. Control them with ease.</p>
+        <p id="HomeSubtigtle" class="title">Get useful insights about your devices usage. Control them with ease.</p>
       </v-flex>
     </v-layout>
 
