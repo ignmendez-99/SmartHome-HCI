@@ -1,0 +1,179 @@
+<template>
+    <div>
+        <v-container>
+            <v-row class="my-5">
+                <v-col align="center">
+                    <p class="display-3">Welcome to UltraHome, Juan!</p>
+                </v-col>
+            </v-row>
+            <v-row>
+                <v-col align="center">
+                    <template>
+                        <v-stepper :value=currentStep>
+                        <v-stepper-header>
+                            <v-stepper-step step="1">Step 1: create a new home</v-stepper-step>
+                            <v-divider></v-divider>
+                            <v-stepper-step step="2">Step 2: Create a new room</v-stepper-step>
+                            <v-divider></v-divider>
+                            <v-stepper-step step="3">Step 3: add your first device</v-stepper-step>
+                        </v-stepper-header>
+                        </v-stepper>
+                    </template>
+                </v-col>
+            </v-row>
+        </v-container>
+
+        <v-container class="mb-12 pt-0">
+            <v-row>
+                <v-col cols="4" align="center">
+                    <v-text-field
+                        v-show="currentStep === 1"
+                        id="newHomeName"
+                        v-model="homeName"
+                        label="Name of the new home"
+                        :rules="[rules.required, rules.counter]"
+                        counter
+                        maxlength="25"
+                    ></v-text-field>
+                    <v-btn class="my-0" v-bind:disabled="homeName === ''" color="light-blue darken-1 white--text" @click="currentStep++" v-show="currentStep === 1">Add home</v-btn>
+
+                    <v-card color="light-blue darken-1" v-show="currentStep !== 1">
+                        <v-icon class="my-2" large>mdi-check</v-icon>
+                    </v-card>
+                    <v-card v-show="currentStep !== 1" align="center">
+                        <v-card-title class="justify-center">{{homeName}} added!</v-card-title>
+                    </v-card>
+                </v-col>
+
+                <v-col cols="4" align="center">
+                    <v-text-field
+                        v-show="currentStep === 2"
+                        v-model="roomName"
+                        label="Name of the new room"
+                        :rules="[rules.required, rules.counter]"
+                        counter
+                        maxlength="25"
+                    ></v-text-field>
+                        <v-btn class="my-0" outlined color="light-blue darken-1" v-show="currentStep === 2" @click="currentStep--">Go back</v-btn>
+                        <v-btn class="my-0" v-bind:disabled="roomName === ''" color="light-blue darken-1 white--text" @click="currentStep++" v-show="currentStep === 2">Add room</v-btn>
+                    <v-card color="light-blue darken-1" v-show="currentStep === 3 || currentStep === 4">
+                        <v-icon class="my-2" large>mdi-check</v-icon>
+                    </v-card>
+                    <v-card v-show="currentStep === 3 || currentStep === 4">
+                        <v-card-title class="justify-center">{{roomName}} added!</v-card-title>
+                    </v-card>
+                </v-col>
+
+                <v-col cols="4" align="center">
+                    <v-select
+                    v-show="currentStep === 3"
+                    :items="items"
+                    label="Devices found ready to connect"
+                    dense
+                    v-on:change="selectedDevice"
+                    ></v-select>
+                
+                    <v-text-field
+                        v-show="currentStep === 3"
+                        v-model="deviceName"
+                        label="Device name"
+                        :rules="[rules.required, rules.counter]"
+                        counter
+                        maxlength="30"
+                    ></v-text-field>
+                        <v-btn class="my-0" outlined color="light-blue darken-1" @click="currentStep--" v-show="currentStep === 3">Go back</v-btn>
+                        <v-btn class="my-0" v-bind:disabled="deviceName === ''" color="light-blue darken-1 white--text" @click="finishSteps" v-show="currentStep === 3">Add device</v-btn>
+                    <v-card color="light-blue darken-1" v-show="currentStep === 4">
+                        <v-icon class="my-2" large>mdi-check</v-icon>
+                    </v-card>
+                    <v-card v-show="currentStep === 4">
+                        <v-card-title class="justify-center">{{deviceName}} added!</v-card-title>
+                    </v-card>
+                </v-col>
+            </v-row>
+
+          <!-- only used for making some white space at the bottom before first step is completed -->
+          <!-- todo: NO SE CUANDO PONERLO (tipo si al principio/final/siempre) -->
+          <v-row class="my-12" v-show="true"></v-row>
+
+          <!-- only shown when all 3 steps have been completed -->
+            <v-row align="center" v-show="currentStep === 4">      
+                <v-col align="center" cols="12">
+                    All set up! Now you can start controlling your devices.
+                </v-col>
+                <v-col align="center" cols="12">
+                    <v-btn color="light-blue darken-1 white--text">
+                        Start
+                    </v-btn>
+                </v-col>
+            </v-row>
+        </v-container>
+    </div>
+</template>
+
+<script>
+    export default {
+        data() {
+            return{
+                items: ['JBL Speaker', 'Nava\'s Faucet', 'Soft blinds', 'Philips HUE lights', 'Pentagono door', 'GE Vacuum 5000', 'LG Fridge 7 million'],
+                currentStep: 1,
+                dialog: false,
+                rules: {
+                    required: value => !!value || 'Required.',
+                    counter: value => value.length <= 25 || 'Max 25 characters'
+                },
+                homeName: "",
+                roomName: "",
+                deviceName: "",
+                deviceSelected: "",
+                genericUrl: 'http://127.0.0.1:8081/api/'
+            }
+        },
+        methods: {
+            finishSteps: function() {
+                /* aumentamos al paso 4, para mostrar que los 3 pasos ya estan completados */
+                this.currentStep ++;
+                this.firstTimeRegistration(this.homeName, this.roomName, this.deviceName);
+                //console.log("createHome me devolvio\n" + JSON.stringify(home, null, 2));
+            },
+            selectedDevice(selectObj) {
+                this.deviceSelected = selectObj;
+            },
+            firstTimeRegistration: function(newHomeName, newRoomName, newDeviceName) {
+                this.axios.post(this.genericUrl + 'homes', {
+                    name: newHomeName,
+                    meta: {}
+                })
+                .then(function () {
+                    this.axios.post(`${this.genericUrl}rooms`, {
+                        name: newRoomName,
+                        meta: {}
+                    })
+                    .then(function () {
+                        this.axios.post(`${this.genericUrl}devices`, {
+                        type: {
+                            id: "go46xmbqeomjrsjr"
+                        },
+                        name: newDeviceName,
+                        meta: {}
+                        })
+                        .then(function () {
+                            console.log("Logramos llegar hasta abajo de todo\n");
+                        })
+                        .catch(function () {
+                            console.log("Fallo crear un device");
+                        });
+                    })
+                    .catch(function () {
+                        console.log("Fallo crear una Room");
+                    });
+                })
+                .catch(function () {
+                    console.log("Fallo crear una Home");
+                });
+
+                
+            }
+        }   
+    }
+</script>

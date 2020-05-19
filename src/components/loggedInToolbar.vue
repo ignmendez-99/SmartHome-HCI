@@ -1,6 +1,6 @@
 <template>
   <nav>
-    <v-app-bar short color="light-blue darken-1 white--text">
+    <v-app-bar app short color="light-blue darken-1 white--text">
       <v-toolbar-title>UltraHome</v-toolbar-title>
       <v-spacer></v-spacer>
 
