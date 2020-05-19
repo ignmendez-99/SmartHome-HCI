@@ -1,32 +1,32 @@
 <template>
-  <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </div>
-    <router-view/>
-  </div>
+  <v-app id="app">
+    <v-content>
+
+      <!-- una vez importado el componente y puesto en la seccion de "components", se puede poner como un
+      elemento de HTML nuevo -->
+      <miBar/>
+
+      <div id="nav">
+        <!-- <router-link to="/">Home</router-link> |
+        <router-link to="/about">About</router-link> -->
+      </div>
+
+      <router-view/>
+
+    </v-content>
+
+    <miFooter/>
+
+  </v-app>
 </template>
 
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
+<script>
+import navBar from './components/notLoggedInToolbar';
+import footer from './components/footer';
+export default {
+  components: {
+    'miBar': navBar,
+    'miFooter': footer
+  }
 }
-
-#nav {
-  padding: 30px;
-}
-
-#nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
-
-#nav a.router-link-exact-active {
-  color: #42b983;
-}
-</style>
+</script>
