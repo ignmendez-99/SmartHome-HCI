@@ -68,6 +68,9 @@
                     <v-select
                     v-show="currentStep === 3"
                     :items="items"
+                    item-text="name"
+                    item-value="id"
+                    return-object
                     label="Devices found ready to connect"
                     dense
                     v-on:change="selectedDevice"
@@ -115,7 +118,15 @@
     export default {
         data() {
             return{
-                items: ['JBL Speaker', 'Nava\'s Faucet', 'Soft blinds', 'Philips HUE lights', 'Pentagono door', 'GE Vacuum 5000', 'LG Fridge 7 million'],
+                items: [
+                    {name:'JBL Speaker', id:'c89b94e8581855bc'}, 
+                    {name:'Nava\'s Faucet', id:'dbrlsh7o5sn8ur4i'}, 
+                    {name:'Soft blinds', id:'eu0v2xgprrhhg41g'}, 
+                    {name:'Philips HUE lights', id:'go46xmbqeomjrsjr'}, 
+                    {name:'Pentagono door', id:'lsf78ly0eqrjbz91'}, 
+                    {name:'GE Vacuum 5000', id:'ofglvd9gqx8yfl3l'}, 
+                    {name:'LG Fridge 7 million', id:'rnizejqr2di0okho'}
+                    ],
                 currentStep: 1,
                 dialog: false,
                 rules: {
@@ -125,7 +136,7 @@
                 homeName: "",
                 roomName: "",
                 deviceName: "",
-                deviceSelected: "",
+                deviceSelectedId: "",
                 genericUrl: 'http://127.0.0.1:8081/api/'
             }
         },
@@ -133,12 +144,12 @@
             finishSteps: function() {
                 /* aumentamos al paso 4, para mostrar que los 3 pasos ya estan completados */
                 this.currentStep ++;
-                this.firstTimeRegistration(this.homeName, this.roomName, this.deviceName);
+                this.firstTimeRegistration(this.homeName, this.roomName, this.deviceName, this.deviceSelectedId);
             },
             selectedDevice(selectObj) {
-                this.deviceSelected = selectObj;
+                this.deviceSelectedId = selectObj.id;
             },
-            firstTimeRegistration: function(newHomeName, newRoomName, newDeviceName) {
+            firstTimeRegistration: function(newHomeName, newRoomName, newDeviceName, selectedId) {
                 // Esto nos permite poder poner "axios" en vez de "this.axios" cada vez que querramos hacer un request
                 // lo hicimos porque 2 niveles mas abajo el "this.axios" explotaba
                 const axios = require('axios');  
@@ -165,7 +176,7 @@
                         console.log("2. El id de la room creada es: " + roomID);
                         axios.post(genericUrl + 'devices', {
                             type: {
-                                id: "go46xmbqeomjrsjr" // HARDCODEADO  (ES SIEMPRE UN DEVICE TIPO LAMPARA!!!)
+                                id: selectedId //"go46xmbqeomjrsjr" // HARDCODEADO  (ES SIEMPRE UN DEVICE TIPO LAMPARA!!!)
                             },
                             name: newDeviceName,
                             meta: {}
