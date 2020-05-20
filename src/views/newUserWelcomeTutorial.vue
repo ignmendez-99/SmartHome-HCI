@@ -112,13 +112,6 @@
 </template>
 
 <script>
-
-    var genericUrl = 'http://127.0.0.1:8081/api/';   // NO SE SI ES BUENA PROGRAMACION QUE ESTO ESTE ACA
-                                                    // PERO HACE QUE EL SCOPE SEA GLOBAL
-    var homeID;
-    var roomID;
-    var deviceID;
-
     export default {
         data() {
             return{
@@ -130,16 +123,10 @@
                     counter: value => value.length <= 25 || 'Max 25 characters'
                 },
                 homeName: "",
-                //homeID: "",
-
                 roomName: "",
-                //roomID: "",
-
                 deviceName: "",
-                //deviceID: "",
-
                 deviceSelected: "",
-                //genericUrl: 'http://127.0.0.1:8081/api/'
+                genericUrl: 'http://127.0.0.1:8081/api/'
             }
         },
         methods: {
@@ -152,18 +139,21 @@
                 this.deviceSelected = selectObj;
             },
             firstTimeRegistration: function(newHomeName, newRoomName, newDeviceName) {
-                const axios = require('axios');  // Esto nos permite poder poner "axios" en vez de "this.axios"
-                                                // cada vez que querramos hacer un request
-                //const genericUrl = this.genericUrl;
-                //var homeID;
-                //var roomID;
-                //var deviceID;
+                // Esto nos permite poder poner "axios" en vez de "this.axios" cada vez que querramos hacer un request
+                // lo hicimos porque 2 niveles mas abajo el "this.axios" explotaba
+                const axios = require('axios');  
+                const genericUrl = this.genericUrl;
+                // estas 3 cosas solo van a tener alcance de ACA PRA ADENTRO
+                // ¿como hacemos entonces para mandarle estas 3 cosas a myDevices.vue ?
+                var homeID;
+                var roomID;
+                var deviceID;
                 
                 axios.post(genericUrl + 'homes', {
                     name: newHomeName,
                     meta: {}
                 })
-                .then(function (response) {
+                .then((response) => {
                     homeID = response.data.result.id;
                     console.log("1. El id de la home creada es: " + homeID);
                     axios.post(genericUrl + 'rooms', {
