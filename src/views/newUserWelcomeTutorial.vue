@@ -112,6 +112,13 @@
 </template>
 
 <script>
+
+    var genericUrl = 'http://127.0.0.1:8081/api/';   // NO SE SI ES BUENA PROGRAMACION QUE ESTO ESTE ACA
+                                                    // PERO HACE QUE EL SCOPE SEA GLOBAL
+    var homeID;
+    var roomID;
+    var deviceID;
+
     export default {
         data() {
             return{
@@ -123,10 +130,16 @@
                     counter: value => value.length <= 25 || 'Max 25 characters'
                 },
                 homeName: "",
+                //homeID: "",
+
                 roomName: "",
+                //roomID: "",
+
                 deviceName: "",
+                //deviceID: "",
+
                 deviceSelected: "",
-                genericUrl: 'http://127.0.0.1:8081/api/'
+                //genericUrl: 'http://127.0.0.1:8081/api/'
             }
         },
         methods: {
@@ -134,17 +147,17 @@
                 /* aumentamos al paso 4, para mostrar que los 3 pasos ya estan completados */
                 this.currentStep ++;
                 this.firstTimeRegistration(this.homeName, this.roomName, this.deviceName);
-                //console.log("createHome me devolvio\n" + JSON.stringify(home, null, 2));
             },
             selectedDevice(selectObj) {
                 this.deviceSelected = selectObj;
             },
             firstTimeRegistration: function(newHomeName, newRoomName, newDeviceName) {
-                const axios = require('axios');
-                const genericUrl = this.genericUrl;
-                var homeID;
-                var roomID;
-                var deviceID;
+                const axios = require('axios');  // Esto nos permite poder poner "axios" en vez de "this.axios"
+                                                // cada vez que querramos hacer un request
+                //const genericUrl = this.genericUrl;
+                //var homeID;
+                //var roomID;
+                //var deviceID;
                 
                 axios.post(genericUrl + 'homes', {
                     name: newHomeName,
@@ -161,43 +174,46 @@
                         roomID = response.data.result.id;
                         console.log("2. El id de la room creada es: " + roomID);
                         axios.post(genericUrl + 'devices', {
-                        type: {
-                            id: "go46xmbqeomjrsjr"
-                        },
-                        name: newDeviceName,
-                        meta: {}
+                            type: {
+                                id: "go46xmbqeomjrsjr" // HARDCODEADO  (ES SIEMPRE UN DEVICE TIPO LAMPARA!!!)
+                            },
+                            name: newDeviceName,
+                            meta: {}
                         })
                         .then( (response) => {
                             deviceID = response.data.result.id;
                             console.log("3. El id del device creado es: " + deviceID);
                             axios.post(genericUrl + 'homes/' + homeID + "/rooms/" + roomID, {})
+                            .then( () => {
+                                console.log("4. Se incluyó la room " + roomID + " en la home " + homeID);
+                                axios.post(genericUrl + 'rooms/' + roomID + "/devices/" + deviceID, {})
                                 .then( () => {
-                                    console.log("4. Se incluyó la room " + roomID + " en la home " + homeID);
-                                    axios.post(genericUrl + 'rooms/' + roomID + "/devices/" + deviceID, {})
-                                        .then( () => {
-                                            console.log("5. Se incluyó el device " + deviceID + " en la room " + roomID);
-                                        })
-                                        .catch(function () {
-                                            console.log("Fallo agregar el device a la room");
-                                        });
+                                    console.log("5. Se incluyó el device " + deviceID + " en la room " + roomID);
                                 })
                                 .catch(function () {
-                                    console.log("Fallo agregar la room a la home");
+                                    console.log("Fallo agregar el device a la room");
+                                    // MOSTRAR UN POPUP DICIENDO QUE FALLO LA OPERACION
                                 });
+                            })
+                            .catch(function () {
+                                console.log("Fallo agregar la room a la home");
+                                // MOSTRAR UN POPUP DICIENDO QUE FALLO LA OPERACION
+                            });
                         })
-                        .catch(function (response) {
-                            console.log("Fallo crear un device " + response);
+                        .catch(function () {
+                            console.log("No se pudo crear un device");
+                            // MOSTRAR AL USUARIO UN POPUP DICIENDO QUE NO SE PUDO CREAR UN DEVICE !!
                         });
                     })
                     .catch(function () {
-                        console.log("Fallo crear una Room");
+                        console.log("No se pudo crear una Room");
+                        //MOSTRAR AL USUARIO UN POPUP DICIENDO QUE NO SE PUDO CREAR UNA ROOM !!
                     });
                 })
-                .catch(function (response) {
-                    console.log(response);
-                });
-
-                
+                .catch(function () {
+                    console.log("La casa no pudo ser añadida");
+                    // MOSTRAR POPUP AL USUARIO DICIENDO QUE LA CASA NO PUDO SER AÑADIDA!!!
+                });   
             }
         }   
     }
