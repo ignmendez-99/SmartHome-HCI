@@ -6,13 +6,13 @@
       <v-btn class="white--text" text>HOME</v-btn>
       <v-btn class="white--text" text>ABOUT US</v-btn>
       <v-btn class="ma-2" outlined color="white">LOG IN</v-btn>
-      <v-btn class="ma-2" outlined color="white">SIGN UP</v-btn>
+      <v-btn class="ma-2" outlined color="white" @click="signUp">SIGN UP</v-btn>
     </v-app-bar>
   </nav>
 </template>
 
 <script>
 export default {
-    
+  
 }
 </script>

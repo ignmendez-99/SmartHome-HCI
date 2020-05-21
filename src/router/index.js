@@ -3,6 +3,8 @@ import VueRouter from 'vue-router'
 import Tutorial from '../views/newUserWelcomeTutorial.vue'
 import MyDevices from '../views/myDevices.vue'
 import Index from '../views/Index.vue'
+import SignUp from '../views/signUp.vue'
+import LogIn from '../views/logIn.vue'
 
 Vue.use(VueRouter)
 
@@ -22,6 +24,16 @@ Vue.use(VueRouter)
     name: 'Tutorial',
     component: Tutorial
   },
+  {
+    path: '/signUp',
+    name: 'SignUp',
+    component: SignUp
+  },
+  {
+    path: '/logIn',
+    name: 'LogIn',
+    component: LogIn
+  }
 ]
 
 const router = new VueRouter({

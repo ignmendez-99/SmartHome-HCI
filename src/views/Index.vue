@@ -11,10 +11,19 @@
       </v-flex>
     </v-layout>
 
+    <!-- MEDIDAS DE XS SM y MD para que en todos los tamaños ambos botones tengan un tamaño correcto (1 columna) -->
     <v-layout row wrap justify-center class="mb-8">
-      <!-- MEDIDAS DE XS SM y MD para que en todos los tamaños ambos botones tengan un tamaño correcto (1 columna) -->
-      <v-btn md1 sm1 xs1 class="mr-4" large outlined color="light-blue darken-1">SIGN UP</v-btn>
-      <v-btn md1 sm1 xs1 class="ml-4" large color="light-blue darken-1" dark>LOG IN</v-btn>
+
+      <!-- usamos router para navegar hacia otra pantalla -->
+      <!-- se necesita usar un inline-style para sacarle el Underline que router-link le pone -->
+      <router-link to="/signUp" style="text-decoration: none; color: inherit;">
+        <v-btn md1 sm1 xs1 class="mr-4" large outlined color="light-blue darken-1">SIGN UP</v-btn>
+      </router-link>
+      
+      <router-link to="/logIn" style="text-decoration: none; color: inherit;">
+        <v-btn md1 sm1 xs1 class="ml-4" large color="light-blue darken-1" dark @click="logIn">LOG IN</v-btn>
+      </router-link>
+
     </v-layout>
     
     <v-layout row wrap class="mx-12 px-6">  <!-- tiene un Margin y Padding grandes en el eje X -->
@@ -47,3 +56,9 @@
     text-align: center;
   }
 </style>
+
+<script>
+  export default {
+
+  }
+</script>
