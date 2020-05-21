@@ -16,19 +16,19 @@
 </template>
 
 <script>
-import notLoggedInToolbar from './components/notLoggedInToolbar';
-import loggedInToolbar from './components/loggedInToolbar.vue';
-import footer from './components/footer';
-export default {
-  data () {
-    return {
-      loggedIn: true
+  import notLoggedInToolbar from './components/notLoggedInToolbar';
+  import loggedInToolbar from './components/loggedInToolbar.vue';
+  import footer from './components/footer';
+  export default {
+    data () {
+      return {
+        loggedIn: true
+      }
+    },
+    components: {
+      'notLoggedInToolbar': notLoggedInToolbar,
+      'loggedInToolbar': loggedInToolbar,
+      'miFooter': footer
     }
-  },
-  components: {
-    'notLoggedInToolbar': notLoggedInToolbar,
-    'loggedInToolbar': loggedInToolbar,
-    'miFooter': footer
   }
-}
 </script>
