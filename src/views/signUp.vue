@@ -36,13 +36,11 @@
 
                 <v-col cols="6" align="center">
                     <v-text-field
-                        v-model="first"
                         label="First Name"
                         outlined
                     ></v-text-field>
 
                     <v-text-field
-                        v-model="email"
                         label="Email"
                         outlined
                     ></v-text-field>

@@ -21,7 +21,7 @@
       </router-link>
       
       <router-link to="/logIn" style="text-decoration: none; color: inherit;">
-        <v-btn md1 sm1 xs1 class="ml-4" large color="light-blue darken-1" dark @click="logIn">LOG IN</v-btn>
+        <v-btn md1 sm1 xs1 class="ml-4" large color="light-blue darken-1" dark>LOG IN</v-btn>
       </router-link>
 
     </v-layout>

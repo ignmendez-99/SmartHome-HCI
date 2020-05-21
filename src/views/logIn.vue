@@ -6,7 +6,7 @@
                     <!-- necesita tener un inline-style para sacarle el Underline que router le pone -->
                     <router-link to="/" style="text-decoration: none; color: inherit;">
                         <v-btn>
-                            <v-icon x-large @click="foo">mdi-keyboard-backspace</v-icon>
+                            <v-icon x-large>mdi-keyboard-backspace</v-icon>
                         </v-btn>
                     </router-link>
                 </v-col>
@@ -36,13 +36,11 @@
 
                 <v-col cols="6" align="center">
                     <v-text-field
-                        v-model="email"
                         label="Email"
                         outlined
                     ></v-text-field>
                     <v-text-field
                         type="password"
-                        v-model="password"
                         label="Password"
                         outlined
                         clearable
@@ -50,7 +48,7 @@
 
                     <v-row>
                         <v-col cols="5">
-                            <v-checkbox class="npnm" v-model="remember" label="Remember me" hide-details></v-checkbox>
+                            <v-checkbox class="npnm" label="Remember me" hide-details></v-checkbox>
                         </v-col>
                         <v-spacer></v-spacer>
                         <v-col align="end" cols="5">
