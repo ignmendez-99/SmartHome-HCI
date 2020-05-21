@@ -4,7 +4,7 @@
       <v-toolbar-title>UltraHome</v-toolbar-title>
       <v-spacer></v-spacer>
 
-      <v-dialog v-model="dialog" scrollable max-width="400px">
+      <v-dialog scrollable max-width="400px">
         <template v-slot:activator="{ on }">
           <v-btn class="white--text" v-on="on" text>SETTINGS</v-btn>
         </template>
@@ -27,7 +27,9 @@
         </v-card>
       </v-dialog>
 
-      <v-btn class="ma-2" outlined color="white">LOG OUT</v-btn>
+      <router-link to="/" style="text-decoration: none; color: inherit;">
+        <v-btn class="ma-2" outlined color="white">LOG OUT</v-btn>
+      </router-link>
     </v-app-bar>
   </nav>
 </template>

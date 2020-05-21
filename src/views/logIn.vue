@@ -6,7 +6,7 @@
                     <!-- necesita tener un inline-style para sacarle el Underline que router le pone -->
                     <router-link to="/" style="text-decoration: none; color: inherit;">
                         <v-btn>
-                            <v-icon x-large>mdi-keyboard-backspace</v-icon>
+                            <v-icon x-large @click="foo">mdi-keyboard-backspace</v-icon>
                         </v-btn>
                     </router-link>
                 </v-col>
@@ -57,9 +57,10 @@
                             <p class="npnm">Forgot password?</p>         
                         </v-col>
                     </v-row>
-
-                    <v-btn large color="light-blue darken-1" dark>LOG IN</v-btn>
-
+    
+                    <router-link to="/devices" style="text-decoration: none; color: inherit;">
+                        <v-btn large color="light-blue darken-1" dark>LOG IN</v-btn>
+                    </router-link>
                 </v-col>
 
                 <v-col cols="3"></v-col>

@@ -68,7 +68,9 @@
                         @click:append="show2 = !show2"
                     ></v-text-field>
 
-                    <v-btn large color="light-blue darken-1" dark>SIGN UP</v-btn>
+                    <router-link to="/tutorial" style="text-decoration: none; color: inherit;">
+                        <v-btn large color="light-blue darken-1" dark>SIGN UP</v-btn>
+                    </router-link>
 
                 </v-col>
 

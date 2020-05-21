@@ -12,7 +12,7 @@
         <v-col cols="12" class="shrink">
             <v-expand-transition>
                 <v-container v-show="expand">
-                    <room v-for="room in myRooms" :key="room" :name="room[aux]" :devices="devices[room]"/>
+                    <room v-for="room in myRooms" :key="room" :name="room[aux]" :id="room[aux2]" :devices="devices"/>
                     <v-btn @click="createRoom">ADD ROOM</v-btn>
                 </v-container>
             </v-expand-transition>
@@ -30,13 +30,14 @@ export default {
     props: {
         name: String,
         rooms: Array,
-        devices: Object,
+        devices: Array,
         id: String
     },
     data() {
         return{
             expand: false,
             aux: "name",
+            aux2: "id",
             editing: false,
             editingText: "Edit",
             arrow: "mdi-arrow-down",
