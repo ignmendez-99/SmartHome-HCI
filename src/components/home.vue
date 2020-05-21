@@ -3,8 +3,8 @@
     <p id="npnm" class="headline">{{name}}</p>
         <v-spacer></v-spacer>
         <v-btn small @click="editPressed" v-show="expand">{{editingText}}</v-btn>
-        <v-btn small @click="expand = !expand">
-            <v-icon>mdi-keyboard_arrow_down</v-icon>
+        <v-btn small @click="expandPressed">
+            <v-icon>{{arrow}}</v-icon>
         </v-btn>
         <v-col cols="12">
             <v-divider></v-divider>
@@ -12,8 +12,8 @@
         <v-col cols="12" class="shrink">
             <v-expand-transition>
                 <v-container v-show="expand">
-                    <room v-for="room in rooms" :key="room" :name="room" :devices="devices[room]"/>
-                    <p v-if="numberOfRooms">No queres agregar una room a esta casa?</p>
+                    <room v-for="room in myRooms" :key="room" :name="room[aux]" :devices="devices[room]"/>
+                    <v-btn @click="createRoom">ADD ROOM</v-btn>
                 </v-container>
             </v-expand-transition>
         </v-col>
@@ -25,19 +25,24 @@ import room from "../components/room.vue"
 
 export default {
     components: {
-            'room': room
+        'room': room
     },
     props: {
         name: String,
-        rooms: Object,
-        devices: Object
+        rooms: Array,
+        devices: Object,
+        id: String
     },
     data() {
         return{
             expand: false,
+            aux: "name",
             editing: false,
             editingText: "Edit",
-            numberOfRooms: this.rooms.lenght
+            arrow: "mdi-arrow-down",
+            numberOfRooms: this.rooms.lenght,
+            genericUrl: 'http://127.0.0.1:8081/api/',
+            myRooms: []
         }
     },
     methods: {
@@ -47,7 +52,50 @@ export default {
                 this.editingText = "Done"
             else
                 this.editingText = "Edit"
+        },
+        expandPressed() {
+            this.expand = !this.expand
+            if(this.arrow === "mdi-arrow-down")
+                this.arrow = "mdi-arrow-up"
+            else
+                this.arrow = "mdi-arrow-down"
+        },
+        createRoom() {
+            let roomId;
+
+            this.axios.post(this.genericUrl + 'rooms', {
+                name: "PRUEBA ROOM FINAL",
+                meta: {}
+            })
+            .then( (response) => {
+                roomId = response.data.result.id;
+                this.axios.post(this.genericUrl + "homes/" + this.id + "/rooms/" + roomId, {})
+                .then( () => {
+                    console.log("LINKED HOME WITH ROOM");
+                    this.axios.get(this.genericUrl + "rooms/" + roomId, {})
+                    .then( (response) => {
+                        this.myRooms.push(response.data.result);
+                        console.log("SUCCESS");
+                    })
+                    .catch( () => {
+                        console.log("FAILED TO GET THE NEW ROOM");
+                    })
+                })
+                .catch( () => {
+                    console.log("FAILED TO LINK ROOM WITH HOME");
+                })
+            })
+            .catch( () =>{
+                console.log("FAILED TO CREATE ROOM");
+            })
+        },
+        parseRooms(room) {
+            if(room["home"]["name"] === this.name)
+                this.myRooms.push(room);
         }
+    },
+    mounted() {
+        this.rooms.forEach(this.parseRooms);
     }
 }
 </script>
