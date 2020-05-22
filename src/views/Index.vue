@@ -4,6 +4,8 @@
     <!-- dejamos un pequeños espacio entre la toolbar y el titulo de la pagina -->
     <v-layout class="my-9"/>
 
+    <speakerCard/>
+
     <v-layout row wrap justify-center>
       <v-flex class="mb-8">
         <p id="HomeTitle" text-align="center" class="display-3">Smart Home. Made Simple.</p>
@@ -58,7 +60,10 @@
 </style>
 
 <script>
+  import speakerCard from '../components/speakerCard'
   export default {
-
+    components: {
+      'speakerCard': speakerCard
+    }
   }
 </script>
