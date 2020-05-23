@@ -51,8 +51,8 @@
                 <v-col cols="8">
                     <div id="my_devices">
                         <v-container fluid>
-                            <home v-for="home in homes" :key="home" :name="home[name]" :id="home[id]" :rooms="rooms" :devices="devices"/>
-                            <v-btn @click="createHome">Add new home</v-btn>
+                            <home v-for="home in $homeStore.data.homes" :key="home" :homeName="home[name]" :homeId="home[id]"/>
+                            <addHome/>
                         </v-container>
                     </div>
                 </v-col>
@@ -76,119 +76,27 @@
 
 </style>
 
-
 <script>
     import routine from "../components/routine.vue"
     import home from "../components/home.vue"
+    import addHome from "../components/addHome.vue"
 
     export default {
         components: {
             'routine': routine,
-            'home': home
+            'home': home,
+            'addHome': addHome
         },
         data() {
             return{
+                newHomeName: "PRUEBA 2",
                 name: "name",
                 id: "id",
                 prueba: "CHAU",
                 routines: ["hola", "chau", "que tal", "todo bien", "FRANCO NAVARRO"],
-                // homes: [
-                //     {
-                //         "id": "cf077bae749e07f5",
-                //         "name": "Buenos Aires house",
-                //         "meta": {}
-                //     },
-                //     {
-                //         "id": "cf077bae749e07f6",
-                //         "name": "Pilar house",
-                //         "meta": {}
-                //     },
-                //     {
-                //         "id": "cf077bae749e07f7",
-                //         "name": "Casa de FRANCO NAVARRO",
-                //         "meta": {}
-                //     }
-                // ],
-                // rooms: [
-                //     {
-                //         "id": "de4ef543e2014f83",
-                //         "name": "Living",
-                //         "home": {
-                //             "id": "cf077bae749e07f5",
-                //             "name": "Buenos Aires house"
-                //         },
-                //         "meta": {}
-                //     },
-                //     {
-                //         "id": "de4ef543e2014f84",
-                //         "name": "Kitchen",
-                //         "home": {
-                //             "id": "cf077bae749e07f5",
-                //             "name": "Buenos Aires house"
-                //         },
-                //         "meta": {}
-                //     },
-                //     {
-                //         "id": "de4ef543e2014f85",
-                //         "name": "Nacho Mendez's room",
-                //         "home": {
-                //             "id": "cf077bae749e07f5",
-                //             "name": "Buenos Aires house"
-                //         },
-                //         "meta": {}
-                //     },
-                //     {
-                //         "id": "de4ef543e2014f84",
-                //         "name": "Dining room",
-                //         "home": {
-                //             "id": "cf077bae749e07f6",
-                //             "name": "Pilar house"
-                //         },
-                //         "meta": {}
-                //     },
-                //     {
-                //         "id": "de4ef543e2014f85",
-                //         "name": "Garden",
-                //         "home": {
-                //             "id": "cf077bae749e07f6",
-                //             "name": "Pilar house"
-                //         },
-                //         "meta": {}
-                //     },
-                // ],
-                // devices: [
-                //     {
-                //         "id": "3d634b6f1326eaaf",
-                //         "name": "table lamp",
-                //         "type": {
-                //             "id": "go46xmbqeomjrsjr",
-                //             "name": "lamp",
-                //             "powerUsage": 15
-                //         },
-                //         "state": {
-                //             "status": "off",
-                //             "color": "FFFFFF",
-                //             "brightness": 100
-                //         },
-                //         "room": {
-                //             "id": "8fbbd7ab9d3b657f",
-                //             "name": "Living",
-                //             "home": {
-                //                 "id": "02e93a94fad34dac",
-                //                 "name": "Buenos Aires house"
-                //             }
-                //         },
-                //         "meta": {}
-                //     }
-                    
-                // ],
-                homes: [],
-                rooms: [],
-                devices: [],
                 expand: false,
                 editingRoutines: false,
                 routinesEditButtonText: "Edit",
-                genericUrl: 'http://127.0.0.1:8081/api/'
             }
         },
         methods: {
@@ -198,46 +106,7 @@
                     this.routinesEditButtonText = "Done"
                 else
                     this.routinesEditButtonText = "Edit"
-            },
-            createHome() {
-                this.axios.post(this.genericUrl + 'homes', {
-                    name: "PRUEBA HOME FINAL",
-                    meta: {}
-                })
-                .then( (response) => {
-                    this.homes.push(response.data.result);
-                })
-                .catch( () =>{
-                    console.log("FAILED TO CREATE HOME");
-                })
             }
-        },
-        created() {
-            this.axios.get(this.genericUrl + "homes", {})
-            .then( (response) => {
-                this.homes = response.data.result
-            })
-            .catch( () => {
-                console.log("FAILED TO GET ALL HOMES");
-            })
-
-            this.axios.get(this.genericUrl + "rooms", {})
-            .then( (response) => {
-                this.rooms = response.data.result
-            })
-            .catch( () => {
-                console.log("FAILED TO GET ALL ROOMS")
-            })
-            
-            this.axios.get(this.genericUrl + "devices", {})
-            .then( (response) => {
-                this.devices = response.data.result
-            })
-            .catch( () => {
-                console.log("FAILED TO GET ALL DEVICES")
-            })
         }
-
-    
     }
 </script>
