@@ -1,6 +1,7 @@
 <template>
     <div class="text-xs-center">
         <v-dialog v-model="dialog" width="500">
+            <!-- dialog DEBERIA REEMPLAZARSE POR $dialogStore.data.dialogs.get(deviceId). deviceId lo recibe como prop. -->
 
             <template v-slot:activator="{ on }">
                 <v-btn color="red lighten-2"  dark  v-on="on" @click="speakerManager">Click Me</v-btn>

@@ -14,6 +14,21 @@ Vue.config.productionTip = false
 
 const genericUrl = 'http://127.0.0.1:8081/api/'
 
+// const dialogStore = Vue.observable({   // IDEA PARA MOSTRAR LOS DIALOGS DESDE CUALQUIER BOTON
+//   data: {
+//     dialogs: new Map()
+//   }
+// })
+
+// map:
+//   [deviceId1, false],
+//   [deviceId2, false],
+
+// dialogStore.data.dialogs.set(deviceId, true)   // LO QUE DEBERIAN HACER LOS DEVICE.VUE PARA MOSTRAR SUS POPUPS
+
+// PARA HACER ESTO, LOS VALUES DEL MAP DEBEN INICIALIZARSE EN FALSE. CADA device.vue DEBE HACER:
+// dialogStore.data.dialogs.set(deviceId, false). AVERIGUAR COMO ACCEDER A ESTOS STORES DESDE EL JS Y NO DESDE EL HTML.
+
 const homeStore = Vue.observable({
   data: {
     homes: [],
