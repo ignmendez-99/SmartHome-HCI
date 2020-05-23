@@ -1,7 +1,8 @@
 <template>
     <div>
         <v-container fluid>
-           <v-row>
+            <!-- <v-btn @click="testBtn">TEST</v-btn> -->
+            <v-row>
                 <v-col cols="4" class="blue lighten-5">
                     <v-card class="mb-4">
                         <v-row align="center">
@@ -80,6 +81,7 @@
     import routine from "../components/routine.vue"
     import home from "../components/home.vue"
     import addHome from "../components/addHome.vue"
+    // import {dialogStore} from "../main.js"
 
     export default {
         components: {
@@ -96,7 +98,7 @@
                 routines: ["hola", "chau", "que tal", "todo bien", "FRANCO NAVARRO"],
                 expand: false,
                 editingRoutines: false,
-                routinesEditButtonText: "Edit",
+                routinesEditButtonText: "Edit"
             }
         },
         methods: {
@@ -107,6 +109,9 @@
                 else
                     this.routinesEditButtonText = "Edit"
             }
+            // testBtn() {
+            //     console.log(this.$dialogStore.data.dialogs)
+            // }
         }
     }
 </script>
