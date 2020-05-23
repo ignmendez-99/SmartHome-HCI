@@ -6,6 +6,7 @@
 
     <speakerCard/>
     <faucetCard/>
+    <blindsCard/>
 
     <v-layout row wrap justify-center>
       <v-flex class="mb-8">
@@ -63,10 +64,12 @@
 <script>
   import speakerCard from '../components/speakerCard.vue'
   import faucetCard from '../components/faucetCard.vue'
+  import blindsCard from '../components/blindsCard.vue'
   export default {
     components: {
       'speakerCard': speakerCard,
-      'faucetCard' : faucetCard
+      'faucetCard' : faucetCard,
+      'blindsCard' : blindsCard
     }
   }
 </script>
