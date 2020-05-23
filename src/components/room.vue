@@ -12,7 +12,7 @@
         <v-col cols="12" class="shrink">
             <v-expand-transition>
                 <v-row v-show="expand" class="mx-4" align="center">
-                    <device v-for="device in $deviceStore.data.devicesByRoom.get(roomId)" :key="device" :deviceName="device[nameString]" :deviceId="device[idString]"/>
+                    <device v-for="device in $deviceStore.data.devicesByRoom.get(roomId)" :key="device" :deviceName="device[nameString]" :deviceId="device[idString]" :deviceTypeId="device[typeString][idString]"/>
                     <addDevice :roomId="roomId"/>
                 </v-row>
             </v-expand-transition>
@@ -38,6 +38,7 @@ export default {
             editing: false,
             nameString: "name",
             idString: "id",
+            typeString: "type",
             editingText: "Edit",
             expand: false,
             arrow: "mdi-arrow-down"
