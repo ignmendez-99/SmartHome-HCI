@@ -49,28 +49,28 @@
                                 </v-col>
                             </v-row>
                             <v-row justify="center" class="mb-4">
-                                <v-btn color="grey lighten-2 mr-1" v-show="songPlaying" @click="previousSong">
+                                <v-btn color="grey lighten-2 mr-1" v-show="songPlaying" @click="previousSong" :loading="waitingForPreviousSong">
                                     <v-icon>mdi-arrow-collapse-left</v-icon>
                                 </v-btn>
-                                <v-btn color="grey lighten-2 mx-1" v-if="!songPlaying" @click="playOrResumeSong">
+                                <v-btn color="grey lighten-2 mx-1" v-if="!songPlaying" @click="playOrResumeSong" :loading="waitingForPlaySong">
                                     <v-icon>mdi-play</v-icon>
                                 </v-btn>
-                                <v-btn color="grey lighten-2 mx-1" v-else @click="pauseSong">
+                                <v-btn color="grey lighten-2 mx-1" v-else @click="pauseSong" :loading="waitingForPauseSong">
                                     <v-icon>mdi-pause</v-icon>
                                 </v-btn>
-                                <v-btn color="grey lighten-2 mx-1" @click="stopSong">
+                                <v-btn color="grey lighten-2 mx-1" @click="stopSong" :loading="waitingForStopSong">
                                     <v-icon>mdi-stop</v-icon>
                                 </v-btn>
-                                <v-btn color="grey lighten-2 ml-1" v-show="songPlaying" @click="nextSong">
+                                <v-btn color="grey lighten-2 ml-1" v-show="songPlaying" @click="nextSong" :loading="waitingForNextSong">
                                     <v-icon>mdi-arrow-collapse-right</v-icon>
                                 </v-btn>
                             </v-row>
                             <v-row justify="center" class="mb-3">
-                                <v-btn color="grey lighten-2" @click="volumeDown">
+                                <v-btn color="grey lighten-2" @click="volumeDown" :loading="waitingForVolumeDown">
                                     <v-icon>mdi-volume-minus</v-icon>
                                 </v-btn>
                                 <p class="title mx-4 my-1">{{ this.volumeNumber }}</p>
-                                <v-btn color="grey lighten-2" @click="volumeUp">
+                                <v-btn color="grey lighten-2" @click="volumeUp" :loading="waitingForVolumeUp">
                                     <v-icon>mdi-volume-plus</v-icon>
                                 </v-btn>
                             </v-row>
@@ -104,6 +104,14 @@ export default {
             songDuration: "",
             songDurationInSeconds: 0,
 
+            waitingForPreviousSong: false,
+            waitingForPlaySong: false,
+            waitingForPauseSong: false,
+            waitingForStopSong: false,
+            waitingForNextSong: false,
+            waitingForVolumeDown: false,
+            waitingForVolumeUp: false,
+
             genres: ["pop", "rock", "classical", "country", "dance", "latina"],
 
             songTimeElapsed: "",  // will be something like 1:34
@@ -117,6 +125,7 @@ export default {
     methods: {
         playOrResumeSong: function() {
             let action;
+            this.waitingForPlaySong = true;
             if(!this.songPlaying) {
                 if(this.songInDisplay)
                     action = '/resume';
@@ -140,12 +149,14 @@ export default {
             }
         },
         pauseSong: function() {
+            this.waitingForPauseSong = true;
             const pauseAction = '/pause';
             if(this.songPlaying === true) {
                 this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + '54d1a767268e67d4' + pauseAction)
                 .then( () => {
                     this.songPlaying = false;
                     clearInterval(this.secondsUpdater);
+                    this.waitingForPauseSong = false;
                 })
                 .catch( () => {
                     console.log("No se pudo poner pausa a la cancion");
@@ -153,6 +164,7 @@ export default {
             }
         },
         stopSong: function() {
+            this.waitingForStopSong = true;
             const stopAction = '/stop';
             if(this.songInDisplay === true) {
                 this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + '54d1a767268e67d4' + stopAction)
@@ -161,11 +173,13 @@ export default {
                     this.songInDisplay = false;
                     this.secondsElapsed = 0;
                     clearInterval(this.secondsUpdater);
+                    this.waitingForStopSong = false;
                 })
                 .catch( () => {
                     console.log("No se pudo parar a la cancion");
                 })
-            }
+            } else
+                this.waitingForStopSong = false;
         },
         setVolume: function(newVolumeNumber) {
             const action = '/setVolume';
@@ -174,6 +188,8 @@ export default {
                 this.axios.get('http://127.0.0.1:8081/api/' + 'devices/' + '54d1a767268e67d4' + '/state')
                 .then( (response) => {
                     this.volumeNumber = response.data.result.volume;
+                    this.waitingForVolumeDown = false;
+                    this.waitingForVolumeUp = false;
                 })
                 .catch( () => {
                     console.log("No se pudo obtener el estado del dispositivo")
@@ -185,23 +201,29 @@ export default {
         },
         volumeDown: function() {
             if(this.volumeNumber > 0) {
+                this.waitingForVolumeDown = true;
+                this.waitingForVolumeUp = true;
                 const aux = this.volumeNumber - 1;
                 this.setVolume(aux.toString()); // lo paso en formato String
             }
         },
         volumeUp: function() {
             if(this.volumeNumber < 10) {
+                this.waitingForVolumeDown = true;
+                this.waitingForVolumeUp = true;
                 const aux = parseInt(this.volumeNumber) + parseInt(1);
                 this.setVolume(aux.toString()); // lo paso en formato String
             }
         },
         previousSong: function() {
+            this.waitingForPreviousSong = true;
             const action = '/previousSong';
             this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + '54d1a767268e67d4' + action)
             .then( (response) => {
                 if(response.data.result === true) {
                     this.getStateOfCurrentSong();
                     this.secondsElapsed = 0;
+                    this.waitingForPreviousSong = false;
                 }
             })
             .catch( () => {
@@ -209,12 +231,14 @@ export default {
             })
         },
         nextSong: function() {
+            this.waitingForNextSong = true;
             const action = '/nextSong';
             this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + '54d1a767268e67d4' + action)
             .then( (response) => {
                 if(response.data.result === true) {
                     this.getStateOfCurrentSong();
                     this.secondsElapsed = 0;
+                    this.waitingForNextSong = false;
                 }
             })
             .catch( () => {
@@ -270,6 +294,9 @@ export default {
             })
         },
         startCountOfSeconds: function() {
+
+            this.waitingForPlaySong = false;
+
             this.secondsUpdater = window.setInterval( () => {
                 this.secondsElapsed ++ ;
                 this.updateSongTimeElapsed();

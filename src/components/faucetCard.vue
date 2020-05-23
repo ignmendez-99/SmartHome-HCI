@@ -11,7 +11,7 @@
                     <v-card-title class="headline blue lighten-4 pa-3" primary-title>
                         Grifo de Nacho
                         <v-spacer></v-spacer>
-                        <v-btn color="blue lighten-1" small @click="closeCard">
+                        <v-btn color="blue lighten-1" small @click="closeFaucetCard">
                             <v-icon>mdi-close</v-icon>
                         </v-btn>
                     </v-card-title>
@@ -74,8 +74,13 @@
                             </v-row>
 
                             <v-row align="center" justify="center">
-                                <v-btn v-if="!waitingDispensing" @click="startDispense" color="blue lighten-1" v-show="!switchState">Set Dispense</v-btn>
-                                <v-btn v-else loading color="blue lighten-1"></v-btn>
+                                <v-btn 
+                                    v-if="!waitingDispensing" 
+                                    @click="startDispense" 
+                                    color="blue lighten-1 white--text" 
+                                    v-show="!switchState"
+                                >Set Dispense</v-btn>
+                                <v-btn v-else loading color="blue lighten-1 white--text"></v-btn>
                             </v-row>
                             
                         </v-container>
@@ -107,7 +112,7 @@ export default {
         }
     },
     methods: {
-        closeCard() {
+        closeFaucetCard() {
             this.showCard = false;
             clearInterval(this.secondsUpdater);
         },
