@@ -82,6 +82,19 @@
 
             </v-container>
           </v-card-actions>
+
+          <v-snackbar
+            :timeout="timeout"
+            left
+            bottom
+            multi-line
+            v-model="snackbar"
+            color="error"
+          >
+            <strong>{{ errorText }}</strong>
+            <v-btn flat @click.native="snackbar = false">Close</v-btn>
+          </v-snackbar>
+
         </v-container>
       </v-card>
     </v-dialog>
@@ -95,6 +108,10 @@ export default {
       showCard: false,
       lightIsOn: false,
       lightIsOff: false,
+
+      timeout: 6000,    /////
+      errorText: "",    // ERROR HANDLING
+      snackbar: false,  /////
 
       status: "",
       lightColor: "",
@@ -119,14 +136,18 @@ export default {
           if(response.data.result === true) {
             this.lightIsOn = true;
             this.lightIsOff = false;
-            this.waitingTurnOn = false;
-          }
+          } else 
+              this.throwErrorMessage("Could not turn on lamp. Try again later.", 6000);
+          this.waitingTurnOn = false;
         })
         .catch( () => {
-          console.log("No se pudo prender la lampara");
+          this.throwErrorMessage("Could not turn on lamp. Try again later.", 6000);
+          this.waitingTurnOn = false;
         })
-      } else
+      } else {
+        this.throwErrorMessage("Lamp is already ON !", 6000);
         this.waitingTurnOn = false;
+      }
     },
     turnOffLight() {
       this.waitingTurnOff = true;
@@ -137,14 +158,18 @@ export default {
           if(response.data.result === true) {
             this.lightIsOn = false;
             this.lightIsOff = true;
-            this.waitingTurnOff = false;
-          }
+          } else
+              this.throwErrorMessage("Could not turn off lamp. Try again later.", 6000);
+          this.waitingTurnOff = false;
         })
         .catch( () => {
-          console.log("No se pudo apagar la lampara");
+          this.throwErrorMessage("Could not turn off lamp. Try again later.", 6000);
+          this.waitingTurnOff = false;
         })
-      } else
+      } else {
+        this.throwErrorMessage("Lamp is already OFF !", 6000);
         this.waitingTurnOff = false;
+      }
     },
     lightManager() {
       this.showCard = true;
@@ -170,6 +195,9 @@ export default {
         this.waitingForChangeBrightness = false;
         this.waitingForColorChange = false;
       })
+      .catch( () => {
+        this.throwErrorMessage("Could not recover the state of your device. Try again later.", 0);
+      })
     },
     closeCard() {
       this.showCard = false;
@@ -179,14 +207,17 @@ export default {
       const action = '/setBrightness';
       this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + '8e491a7e1a092657' + action, [this.brightnessToChange])
       .then( (response) => {
-        if(response.data.result === this.lightBrightness) {
+        if(response.data.result === this.lightBrightness)
           this.lightBrightness = this.brightnessToChange;
-          this.waitingForChangeBrightness = false;
-          this.readyToChangeBrightness = false;
-        }
+        else
+          this.throwErrorMessage("Could not change brightness. Try again later.", 6000);
+        this.waitingForChangeBrightness = false;
+        this.readyToChangeBrightness = false;
       })
       .catch( () => {
-        console.log("No se pudo cambiar el brillo a la lampara");
+        this.throwErrorMessage("Could not change brightness. Try again later.", 6000);
+        this.waitingForChangeBrightness = false;
+        this.readyToChangeBrightness = false;
       })
     },
     setBrightnessToChange(selectObj) {
@@ -198,14 +229,18 @@ export default {
       const action = '/setColor';
       const RGBcolor = this.lightColor.substring(1, 7);
       this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + '8e491a7e1a092657' + action, [RGBcolor])
-      .then( (response) => {
-        console.log("Se cambio exitosamente el color de la lampara");
-        console.log("Lo que me devolvio axios fue = " + response.data.result);
+      .then( () => {
         this.waitingForColorChange = false;
       })
       .catch( () => {
-        console.log("No se pudo cambiar el color a la lampara");
+        this.throwErrorMessage("Could not change color. Try again later.", 6000);
+        this.waitingForColorChange = false;
       })
+    },
+    throwErrorMessage(message, duration) {
+      this.snackbar = true;
+      this.errorText = message;
+      this.timeout = duration;
     }
   }
 }
