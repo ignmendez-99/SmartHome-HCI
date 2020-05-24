@@ -1,9 +1,14 @@
 <template>
     <v-row>
         <p v-if="!editing" class="headline">{{homeName}}</p>
-        <!-- <v-text-field v-if="editing" dense placeholder=homeName filled/> VER ESTO -->
+        
+        <v-text-field v-if="editing" v-model="newName" dense :placeholder=homeName filled/>
+
         <v-spacer></v-spacer>
-        <v-btn small @click="editPressed" v-show="expand">{{editingText}}</v-btn>
+
+        <v-btn small @click="editPressed" v-show="editing">CANCEL</v-btn>
+        <v-btn small @click="changeHomeName" v-show="editing">DONE</v-btn>
+        <v-btn small @click="editPressed" v-show="!editing && expand">EDIT</v-btn>
         <v-btn small @click="expandPressed">
             <v-icon>{{arrow}}</v-icon>
         </v-btn>
@@ -42,25 +47,25 @@ export default {
             editing: false,
             editingText: "Edit",
             arrow: "mdi-arrow-down",
+            newName: ""
         }
     },
     methods: {
         editPressed() {
             this.editing = !this.editing
-            if(this.editingText === "Edit")
-                this.editingText = "Done"
-            else
-                this.editingText = "Edit"
         },
         expandPressed() {
             this.expand = !this.expand
-            if(this.arrow === "mdi-arrow-down") {
+            if(this.arrow === "mdi-arrow-down")
                 this.arrow = "mdi-arrow-up"
-                this.editingText = "Edit"
-                editing: false
-            }
             else
                 this.arrow = "mdi-arrow-down"
+            this.editing = false
+        },
+        changeHomeName() {
+            this.editing = false
+            if (this.newName != this.homeName)
+                this.$homeStore.data.renameHome(this.homeId, this.newName)
         }
     }
 }
