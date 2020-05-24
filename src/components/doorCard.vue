@@ -3,7 +3,7 @@
         <v-dialog v-model="showCard" width="500">
 
             <template v-slot:activator="{ on }">
-                <v-btn color="red lighten-2"  dark  v-on="on" @click="doorManager">Click Me</v-btn>
+                <v-btn class="pa-0 ma-0" height="250" depressed block color="transparent transparent--text" v-on="on" @click="doorManager">Click Me</v-btn>
             </template>
 
             <v-card>
@@ -89,6 +89,9 @@
 
 <script>
 export default {
+    props: {
+        deviceId: String
+    },
     data() {
         return {
             showCard: false,
@@ -141,7 +144,7 @@ export default {
             this.waitingForOpenConfirmation = true;
             this.waitingForLockConfirmation = true;
             this.waitingForUnlockConfirmation = true;
-            this.axios.get('http://127.0.0.1:8081/api/' + 'devices/' + '7b1ff49750e318b9' + state)
+            this.axios.get('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + state)
             .then( (response) => {
                 this.currentState = response.data.result.status;
                 this.lockState = response.data.result.lock;
@@ -170,7 +173,7 @@ export default {
         },
         // getCurrentState() {
             // const state = '/state';
-            // this.axios.get('http://127.0.0.1:8081/api/' + 'devices/' + '7b1ff49750e318b9' + state)
+            // this.axios.get('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + state)
             // .then( (response) => {
             //     this.levelOfObscurity = response.data.result.level;
             //     this.currentLevel = response.data.result.currentLevel;
@@ -191,7 +194,7 @@ export default {
         openDoor() {
             this.waitingForOpenConfirmation = true;
             const open = '/open';
-            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + '7b1ff49750e318b9' + open)
+            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + open)
             .then( (response) => {
                 if(response.data.result === true) {
                     this.opened = true;
@@ -208,7 +211,7 @@ export default {
         closeDoor() {
             this.waitingForCloseConfirmation = true;
             const close = '/close';
-            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + '7b1ff49750e318b9' + close)
+            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + close)
             .then( (response) => {
                 if(response.data.result === true) {
                     this.opened = false;
@@ -225,7 +228,7 @@ export default {
         lockDoor() {
             this.waitingForLockConfirmation = true;
             const close = '/lock';
-            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + '7b1ff49750e318b9' + close)
+            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + close)
             .then( (response) => {
                 if(response.data.result === true) {
                     this.locked = true;
@@ -242,7 +245,7 @@ export default {
         unlockDoor() {
             this.waitingForUnlockConfirmation = true;
             const close = '/unlock';
-            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + '7b1ff49750e318b9' + close)
+            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + close)
             .then( (response) => {
                 if(response.data.result === true) {
                     this.locked = false;

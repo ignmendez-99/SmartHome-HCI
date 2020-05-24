@@ -1,8 +1,18 @@
 <template>
     <v-row class="mx-4">
-        <p id="npnm" class="subtitle-1">{{roomName}}</p>
+        <p v-if="!editing" class="headline">{{roomName}}</p>
+        
+        <v-text-field v-if="editing" v-model="newName" dense filled/>
+
+        <v-btn x-small @click="deleteRoom" class="red ml-4" fab v-show="editing">
+            <v-icon>{{deleteIcon}}</v-icon>
+        </v-btn>
+
         <v-spacer></v-spacer>
-        <v-btn small @click="editPressed" v-show="expand">{{editingText}}</v-btn>
+
+        <v-btn small @click="cancelPressed" v-show="editing">CANCEL</v-btn>
+        <v-btn small @click="changeRoomName" class="mx-4 blue white--text" v-show="editing">DONE</v-btn>
+        <v-btn small @click="editPressed" class="mr-4" v-show="!editing && expand">EDIT</v-btn>
         <v-btn small @click="expandPressed">
             <v-icon>{{arrow}}</v-icon>
         </v-btn>
@@ -41,18 +51,19 @@ export default {
             nameString: "name",
             idString: "id",
             typeString: "type",
-            editingText: "Edit",
             expand: false,
-            arrow: "mdi-arrow-down"
+            arrow: "mdi-arrow-down",
+            deleteIcon: "mdi-delete",
+            newName: this.roomName
         }
     },
     methods: {
         editPressed() {
-            this.editing = !this.editing
-            if(this.editingText === "Edit")
-                this.editingText = "Done"
-            else
-                this.editingText = "Edit"
+            this.editing = true
+        },
+        cancelPressed() {
+            this.newName = this.roomName
+            this.editing = false
         },
         expandPressed() {
             this.expand = !this.expand
@@ -60,6 +71,17 @@ export default {
                 this.arrow = "mdi-arrow-up"
             else
                 this.arrow = "mdi-arrow-down"
+            this.editing = false
+        },
+        changeRoomName() {
+            this.editing = false
+            if (this.newName != this.roomName)
+                this.$roomStore.data.renameRoom(this.roomId, this.newName)
+        },
+        deleteRoom() {
+            this.editing = false
+            // ACA DEBERIA PREGUNTAR CON UN POPUP O ALGO!!!!!!!!!!!!!
+            this.$roomStore.data.deleteRoom(this.roomId)
         }
     }
 }

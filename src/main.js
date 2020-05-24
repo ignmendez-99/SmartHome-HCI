@@ -1,5 +1,4 @@
 import Vue from 'vue'
-//import './plugins/axios'
 import App from './App.vue'
 import router from './router'
 import vuetify from './plugins/vuetify';
@@ -18,13 +17,14 @@ const homeStore = Vue.observable({
   data: {
     homes: [],
       getAllHomes() {
-          axios.get(genericUrl + "homes", {})
-          .then( (response) => {
-              this.homes = response.data.result
-          })
-          .catch( () => {
-              console.log("FAILED TO GET ALL HOMES")
-          })
+        this.homes = []
+        axios.get(genericUrl + "homes", {})
+        .then( (response) => {
+          this.homes = response.data.result
+        })
+        .catch( () => {
+          console.log("FAILED TO GET ALL HOMES")
+        })
       },
   
       createHome(name) {
@@ -40,7 +40,6 @@ const homeStore = Vue.observable({
           })
       },
 
-      // TESTEAR
       renameHome(homeId, newName) {
         axios.put(genericUrl + "homes/" + homeId, {
           name: newName,
@@ -52,6 +51,16 @@ const homeStore = Vue.observable({
         .catch( () => {
             console.log("FAILED TO RENAME HOME " + homeId + " with new name " + newName)
         })
+      },
+
+      deleteHome(homeId) {
+        axios.delete(genericUrl + "homes/" + homeId, {})
+        .then( () => {
+          getAll()
+        })
+        .catch( () => {
+            console.log("FAILED TO DELETE HOME " + homeId)
+        })
       }
   }
 })
@@ -62,6 +71,8 @@ const roomStore = Vue.observable({
     roomsByHome: new Map(),
 
     getAllRooms() {
+      this.rooms = []
+      this.roomsByHome.clear()
       axios.get(genericUrl + "rooms", {})
       .then( (response) => {
         this.rooms = response.data.result
@@ -125,7 +136,6 @@ const roomStore = Vue.observable({
       })
     },
 
-    // TESTEAR
     renameRoom(roomId, newName) {
       axios.put(genericUrl + "rooms/" + roomId, {
         name: newName,
@@ -137,6 +147,16 @@ const roomStore = Vue.observable({
       .catch( () => {
           console.log("FAILED TO RENAME ROOM " + roomId + " with new name " + newName)
       })
+    },
+
+    deleteRoom(roomId) {
+      axios.delete(genericUrl + "rooms/" + roomId, {})
+      .then( () => {
+        getAll()
+      })
+      .catch( () => {
+          console.log("FAILED TO DELETE ROOM " + roomId)
+      })
     }
   }
 })
@@ -147,6 +167,8 @@ const deviceStore = Vue.observable({
     devicesByRoom: new Map(),
 
     getAllDevices() {
+      this.devices = []
+      this.devicesByRoom.clear()
       axios.get(genericUrl + "devices", {})
       .then( (response) => {
         this.devices = response.data.result
@@ -212,7 +234,6 @@ const deviceStore = Vue.observable({
       this.devices.forEach(this.parseDevice)
     },
 
-    // TESTEAR
     renameDevice(deviceId, newName) {
       axios.put(genericUrl + "devices/" + deviceId, {
         name: newName,
@@ -223,6 +244,16 @@ const deviceStore = Vue.observable({
       })
       .catch( () => {
           console.log("FAILED TO RENAME DEVICE " + deviceId + " with new name " + newName)
+      })
+    },
+
+    deleteDevice(deviceId) {
+      axios.delete(genericUrl + "devices/" + deviceId, {})
+      .then( () => {
+        getAll()
+      })
+      .catch( () => {
+          console.log("FAILED TO DELETE DEVICE " + deviceId)
       })
     }
   }
@@ -239,29 +270,29 @@ function sleep(ms) {
 async function getAll() {
   homeStore.data.getAllHomes()
   console.log("TRAJO LAS HOMES")
-  await sleep(2000);
-  console.log(homeStore.data.homes)
+  // await sleep(2000);
+  // console.log(homeStore.data.homes)
   
   
   roomStore.data.getAllRooms()
   console.log("TRAJO LAS ROOMS")
-  await sleep(2000);
-  console.log(roomStore.data.rooms)
+  // await sleep(2000);
+  // console.log(roomStore.data.rooms)
   
   deviceStore.data.getAllDevices()
   console.log("TRAJO LOS DEVICES")
   await sleep(2000);
-  console.log(deviceStore.data.devices)
+  // console.log(deviceStore.data.devices)
 
   roomStore.data.divideRoomsByHome()
   console.log("LINKEO LAS ROOMS CON LAS HOMES")
   await sleep(2000);
-  console.log(roomStore.data.roomsByHome)
+  // console.log(roomStore.data.roomsByHome)
   
   deviceStore.data.divideDevicesByRoom()
   console.log("LINKEO LOS DEVICES CON LAS ROOMS")
-  await sleep(2000);
-  console.log(deviceStore.data.devicesByRoom)
+  // await sleep(2000);
+  // console.log(deviceStore.data.devicesByRoom)
 }
 
 getAll()
