@@ -14,11 +14,17 @@ Vue.config.productionTip = false
 
 const genericUrl = 'http://127.0.0.1:8081/api/'
 
-// const dialogStore = Vue.observable({   // IDEA PARA MOSTRAR LOS DIALOGS DESDE CUALQUIER BOTON
-//   data: {
-//     dialogs: new Map()
-//   }
-// })
+export const dialogStore = Vue.observable({   // IDEA PARA MOSTRAR LOS DIALOGS DESDE CUALQUIER BOTON
+  data: {
+    dialogs: new Map(),
+    test: "test successful"
+  }
+})
+
+// export const dialogs = {
+//   createDialog: (deviceId) => dialogStore.data.dialogs.set(deviceId, false),
+//   test: () => console.log("AAAA FUNCIONA")
+// }
 
 // map:
 //   [deviceId1, false],
@@ -204,6 +210,7 @@ const deviceStore = Vue.observable({
 Vue.prototype.$homeStore = homeStore
 Vue.prototype.$roomStore = roomStore
 Vue.prototype.$deviceStore = deviceStore
+Vue.prototype.$dialogStore = dialogStore
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));

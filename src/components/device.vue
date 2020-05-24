@@ -100,6 +100,7 @@ export default {
         this.repeater = window.setInterval( () => {
             this.getStateAndIcon();
         }, 5000)
+        this.$dialogStore.data.dialogs.set(this.deviceId, false)
         
     }
     
