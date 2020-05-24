@@ -1,29 +1,47 @@
 <template>
     <v-col cols="3">
-        <v-card class="mx-auto" min-height="240">
+        <v-card class="mx-auto" min-height="250">
             <v-container class="mt-0 pt-0">
                 <v-row class="blue py-5" justify="center">
                     <v-icon size="50">{{icon}}</v-icon>
                 </v-row>
                 <v-card-title>{{deviceName}}</v-card-title>
+                <v-divider class="mb-4 pa-0"/>
 
                 <v-container class="ma-0 pa-0">
                     <v-card-subtitle class="my-0 py-0">{{status1}}</v-card-subtitle>
                     <v-card-subtitle class="my-0 py-0">{{status2}}</v-card-subtitle>
                     <v-card-subtitle class="my-0 py-0">{{status3}}</v-card-subtitle>
                 </v-container>
+
+                
                 
             </v-container>
         </v-card>
+
+        <!-- debería mandarlo solo si es speaker -->
+        <speakerCard v-if="deviceTypeId === 'c89b94e8581855bc'" :deviceId="deviceId" id="overlay"/> 
     </v-col>
 </template>
 
+<style>
+    #overlay {
+        position: relative;
+        margin-top: -250px
+    }
+</style>
+
 <script>
+import speakerCard from "./speakerCard"
+
 export default {
     props: {
         deviceName: String,
         deviceId: String,
         deviceTypeId: String
+    },
+    components: {
+        'speakerCard': speakerCard
     },
     data() {
         return{
@@ -42,24 +60,44 @@ export default {
             .then ( (response) => {
                 switch(this.deviceTypeId) {
                     case "c89b94e8581855bc":    // speaker
-                        this.icon = "mdi-speaker"
                         this.status1 = response.data.result["status"].toUpperCase()
                         this.status2 = "VOLUME: " + response.data.result["volume"]
-                        this.status3 = "GENRE: " + response.data.result["genre"].toUpperCase()
+                        this.status3 = "GEN.: " + response.data.result["genre"].toUpperCase()
+
+                        if (this.status1 === "PLAYING")
+                            this.icon = "mdi-speaker-wireless"
+                        else
+                            this.icon = "mdi-speaker"
+
                         break
                     case "dbrlsh7o5sn8ur4i":    // faucet
                         this.status1 = response.data.result["status"].toUpperCase()
-                        this.icon = "mdi-water-pump"
+
+                        if (this.status1 === "CLOSED")
+                            this.icon = "mdi-water-pump-off"
+                        else 
+                            this.icon = "mdi-water-pump"
+
                         break
                     case "eu0v2xgprrhhg41g":    // blinds
                         this.icon = "mdi-blinds"
                         var aux = 100 - response.data.result["currentLevel"]
                         this.status1 = response.data.result["status"].toUpperCase() + " - " + aux + "%"
+
+                        if(response.data.result["status"].toUpperCase() === "OPENED")
+                            this.icon = "mdi-blinds-open"
+                        else
+                            this.icon = "mdi-blinds"
+
                         break
                     case "go46xmbqeomjrsjr":    // lamp
                         this.status1 = response.data.result["status"].toUpperCase()
                         this.status2 = "INTENSITY: " + response.data.result["brightness"] + "%"
-                        this.icon = "mdi-lightbulb-outline"
+
+                        if (this.status1 === "OFF")
+                            this.icon = "mdi-lightbulb-outline"
+                        else
+                            this.icon = "mdi-lightbulb-on-outline"
                         break
                     case "im77xxyulpegfmv8":    // oven
                         this.icon = "mdi-stove"
@@ -70,7 +108,14 @@ export default {
                     case "lsf78ly0eqrjbz91":    // door
                         this.status1 = response.data.result["status"].toUpperCase()
                         this.status2 = response.data.result["lock"].toUpperCase()
-                        this.icon = "mdi-door"
+
+                        if (this.status2 === "LOCKED")
+                            this.icon = "mdi-door-closed-lock"
+                        else if (this.status1 === "CLOSED")
+                            this.icon = "mdi-door-closed"
+                        else
+                            this.icon = "mdi-door-open"
+
                         break
                     case "mxztsyjzsrq7iaqc":    // alarm
                         this.icon = "mdi-alarm-light-outline"
@@ -100,8 +145,6 @@ export default {
         this.repeater = window.setInterval( () => {
             this.getStateAndIcon();
         }, 5000)
-        this.$dialogStore.data.dialogs.set(this.deviceId, false)
-        
     }
     
 }

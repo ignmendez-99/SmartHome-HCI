@@ -81,7 +81,6 @@
     import routine from "../components/routine.vue"
     import home from "../components/home.vue"
     import addHome from "../components/addHome.vue"
-    // import {dialogStore} from "../main.js"
 
     export default {
         components: {
@@ -109,9 +108,6 @@
                 else
                     this.routinesEditButtonText = "Edit"
             }
-            // testBtn() {
-            //     console.log(this.$dialogStore.data.dialogs)
-            // }
         }
     }
 </script>
