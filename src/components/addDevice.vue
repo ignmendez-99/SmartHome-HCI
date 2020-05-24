@@ -17,6 +17,7 @@
                     </v-card-title>
 
                     <v-select
+                        class="mt-12 mx-6"
                         :items="items"
                         item-text="name"
                         item-value="id"
@@ -26,7 +27,7 @@
                     ></v-select>
 
                     <v-text-field 
-                        class="my-12 mx-6"
+                        class="my-8 mx-6"
                         v-model="deviceName"
                         label="Name of the new device"
                         :rules="[rules.required, rules.counter]"
@@ -34,7 +35,7 @@
                         maxlength="25"/>
 
                     <v-row justify="center">
-                        <v-btn @click="$deviceStore.data.createDevice(deviceName, deviceId, roomId); closeCard()">ADD</v-btn>
+                        <v-btn class="mb-6" @click="$deviceStore.data.createDevice(deviceName, deviceId, roomId); closeCard()">ADD</v-btn>
                     </v-row>
                 </v-container>
             </v-card>

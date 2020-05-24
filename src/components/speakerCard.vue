@@ -1,13 +1,12 @@
 <template>
     <div class="text-xs-center">
-        <v-dialog v-model="dialog" width="500">
-            <!-- dialog DEBERIA REEMPLAZARSE POR $dialogStore.data.dialogs.get(deviceId). deviceId lo recibe como prop. -->
+        <v-dialog v-model="dialog" width="650">
 
             <template v-slot:activator="{ on }">
-                <v-btn color="red lighten-2"  dark  v-on="on" @click="speakerManager">Click Me</v-btn>
+                <v-btn class="pa-0 ma-0" height="250" depressed block color="transparent transparent--text" v-on="on" @click="speakerManager">Click Me</v-btn>
             </template>
 
-            <v-card>
+            <v-card min-height="425">
                 <v-container>
                     <v-card-title class="headline blue lighten-4 pa-3" primary-title>
                         Speaker de Nacho
@@ -16,38 +15,9 @@
                             <v-icon>mdi-close</v-icon>
                         </v-btn>
                     </v-card-title>
-                    <v-card v-show="songInDisplay">
-                        <v-card-title>{{songTitle}}</v-card-title>
-                        <v-container class="pa-0">
-                            <v-col>
-                                <v-row>
-                                    <p class="subheading ml-5">Artist: {{songArtist}}</p>
-                                </v-row>
-                                <v-row>
-                                    <p class="subheading ml-5">Album: {{songAlbum}}</p>
-                                </v-row>
-                            </v-col>
-                        </v-container>
-                    </v-card>
                     
-                    <v-card-actions>
-                        <v-container>
-                            <v-row>
-                                <v-col cols="2" class="pb-0">
-                                    <p v-show="songInDisplay">{{songTimeElapsed}}</p>
-                                </v-col>
-                                <v-col cols="8" class="pb-0">
-                                    <v-progress-linear
-                                    v-show="songInDisplay"
-                                    v-model="progressBarLoadingNumber"
-                                    color="deep-purple accent-4"
-                                    rounded
-                                    ></v-progress-linear>
-                                </v-col>
-                                <v-col cols="2" class="pb-0">
-                                    <p v-show="songInDisplay">{{songDuration}}</p>
-                                </v-col>
-                            </v-row>
+                    <v-card-actions class="pb-0">
+                        <v-container class="pb-0">
                             <v-row justify="center" class="mb-4">
                                 <v-btn color="grey lighten-2 mr-1" v-show="songPlaying" @click="previousSong" :loading="waitingForPreviousSong">
                                     <v-icon>mdi-arrow-collapse-left</v-icon>
@@ -74,15 +44,46 @@
                                     <v-icon>mdi-volume-plus</v-icon>
                                 </v-btn>
                             </v-row>
+                            <v-row>
+                                <v-col cols="2" class="pb-0">
+                                    <p v-show="songInDisplay">{{songTimeElapsed}}</p>
+                                </v-col>
+                                <v-col cols="8" class="pb-0">
+                                    <v-progress-linear
+                                    v-show="songInDisplay"
+                                    v-model="progressBarLoadingNumber"
+                                    color="deep-purple accent-4"
+                                    rounded
+                                    ></v-progress-linear>
+                                </v-col>
+                                <v-col cols="2" class="pb-0">
+                                    <p v-show="songInDisplay">{{songDuration}}</p>
+                                </v-col>
+                            </v-row>
                             <v-select
                                 :items="genres"
                                 v-show="!songInDisplay"
-                                label="Género de música"
+                                label="Music Genre"
                                 dense
                                 @change="changeGenre"
                             ></v-select>
                         </v-container>
                     </v-card-actions>
+
+                    <v-card v-show="songInDisplay">
+                        <v-card-title>{{songTitle}}</v-card-title>
+                        <v-container class="pa-0">
+                            <v-col>
+                                <v-row>
+                                    <p class="subheading ml-5">Artist: {{songArtist}}</p>
+                                </v-row>
+                                <v-row>
+                                    <p class="subheading ml-5">Album: {{songAlbum}}</p>
+                                </v-row>
+                            </v-col>
+                        </v-container>
+                    </v-card>
+
                 </v-container>
             </v-card>
       
@@ -91,7 +92,11 @@
 </template>
 
 <script>
+
 export default {
+    props: {
+        deviceId: String
+    },
     data () {
         return {
             dialog: false,
@@ -132,7 +137,7 @@ export default {
                 else 
                     action = '/play';
                 
-                this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + '54d1a767268e67d4' + action)
+                this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + action)
                 .then( (response) => {
                     if(response.data.result === true) {
                         if(!this.songInDisplay) {
@@ -152,7 +157,7 @@ export default {
             this.waitingForPauseSong = true;
             const pauseAction = '/pause';
             if(this.songPlaying === true) {
-                this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + '54d1a767268e67d4' + pauseAction)
+                this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + pauseAction)
                 .then( () => {
                     this.songPlaying = false;
                     clearInterval(this.secondsUpdater);
@@ -167,7 +172,7 @@ export default {
             this.waitingForStopSong = true;
             const stopAction = '/stop';
             if(this.songInDisplay === true) {
-                this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + '54d1a767268e67d4' + stopAction)
+                this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + stopAction)
                 .then( () => {
                     this.songPlaying = false;
                     this.songInDisplay = false;
@@ -183,9 +188,9 @@ export default {
         },
         setVolume: function(newVolumeNumber) {
             const action = '/setVolume';
-            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + '54d1a767268e67d4' + action, [newVolumeNumber])
+            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + action, [newVolumeNumber])
             .then( () => {
-                this.axios.get('http://127.0.0.1:8081/api/' + 'devices/' + '54d1a767268e67d4' + '/state')
+                this.axios.get('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + '/state')
                 .then( (response) => {
                     this.volumeNumber = response.data.result.volume;
                     this.waitingForVolumeDown = false;
@@ -218,7 +223,7 @@ export default {
         previousSong: function() {
             this.waitingForPreviousSong = true;
             const action = '/previousSong';
-            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + '54d1a767268e67d4' + action)
+            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + action)
             .then( (response) => {
                 if(response.data.result === true) {
                     this.getStateOfCurrentSong();
@@ -233,7 +238,7 @@ export default {
         nextSong: function() {
             this.waitingForNextSong = true;
             const action = '/nextSong';
-            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + '54d1a767268e67d4' + action)
+            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + action)
             .then( (response) => {
                 if(response.data.result === true) {
                     this.getStateOfCurrentSong();
@@ -247,7 +252,7 @@ export default {
         },
         speakerManager: function() {  // executed each time the SpeakerPopup is opened
             const state = '/state';
-            this.axios.get('http://127.0.0.1:8081/api/' + 'devices/' + '54d1a767268e67d4' + state)
+            this.axios.get('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + state)
             .then( (response) => {
                 if(response.data.result.status === 'playing' || response.data.result.status === 'paused') {
                     this.songInDisplay = true
@@ -281,7 +286,7 @@ export default {
             })
         },
         getStateOfCurrentSong: function() {
-            this.axios.get('http://127.0.0.1:8081/api/' + 'devices/' + '54d1a767268e67d4' + '/state')
+            this.axios.get('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + '/state')
             .then( (response) => {
                 this.songTitle = response.data.result.song.title;
                 this.songArtist = response.data.result.song.artist;
@@ -331,7 +336,7 @@ export default {
         changeGenre(selectObj) {
             console.log(selectObj);
             const action = '/setGenre'
-            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + '54d1a767268e67d4' + action, [selectObj])
+            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + action, [selectObj])
             .then( () => {
                 this.getStateOfCurrentSong();
             })
@@ -340,7 +345,7 @@ export default {
             })
         },
         closeCard: function() {
-            this.dialog = false; 
+            this.dialog = false;
             clearInterval(this.secondsUpdater)
         }  
     }

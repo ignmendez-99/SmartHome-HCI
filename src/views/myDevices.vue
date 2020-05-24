@@ -1,7 +1,8 @@
 <template>
     <div>
         <v-container fluid>
-           <v-row>
+            <!-- <v-btn @click="testBtn">TEST</v-btn> -->
+            <v-row>
                 <v-col cols="4" class="blue lighten-5">
                     <v-card class="mb-4">
                         <v-row align="center">
@@ -96,7 +97,7 @@
                 routines: ["hola", "chau", "que tal", "todo bien", "FRANCO NAVARRO"],
                 expand: false,
                 editingRoutines: false,
-                routinesEditButtonText: "Edit",
+                routinesEditButtonText: "Edit"
             }
         },
         methods: {
