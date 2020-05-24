@@ -1,8 +1,13 @@
 <template>
     <v-row class="mx-4">
-        <p id="npnm" class="subtitle-1">{{roomName}}</p>
+        <p v-if="!editing" class="headline">{{roomName}}</p>
+        
+        <v-text-field v-if="editing" v-model="newName" dense :placeholder=roomName filled/>
         <v-spacer></v-spacer>
-        <v-btn small @click="editPressed" v-show="expand">{{editingText}}</v-btn>
+
+        <v-btn small @click="editPressed" v-show="editing">CANCEL</v-btn>
+        <v-btn small @click="changeRoomName" v-show="editing">DONE</v-btn>
+        <v-btn small @click="editPressed" v-show="!editing && expand">EDIT</v-btn>
         <v-btn small @click="expandPressed">
             <v-icon>{{arrow}}</v-icon>
         </v-btn>
@@ -41,9 +46,9 @@ export default {
             nameString: "name",
             idString: "id",
             typeString: "type",
-            editingText: "Edit",
             expand: false,
-            arrow: "mdi-arrow-down"
+            arrow: "mdi-arrow-down",
+            newName: ""
         }
     },
     methods: {
@@ -60,6 +65,12 @@ export default {
                 this.arrow = "mdi-arrow-up"
             else
                 this.arrow = "mdi-arrow-down"
+            this.editing = false
+        },
+        changeRoomName() {
+            this.editing = false
+            if (this.newName != this.roomName)
+                this.$roomStore.data.renameRoom(this.roomId, this.newName)
         }
     }
 }

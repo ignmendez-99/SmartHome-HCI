@@ -1,7 +1,7 @@
 <template>
     <div>
         <v-container fluid>
-            <v-btn @click="testBtn">TEST</v-btn>
+            <!-- <v-btn @click="testBtn">TEST</v-btn> -->
             <v-row>
                 <v-col cols="4" class="blue lighten-5">
                     <v-card class="mb-4">
@@ -107,9 +107,6 @@
                     this.routinesEditButtonText = "Done"
                 else
                     this.routinesEditButtonText = "Edit"
-            },
-            testBtn() {
-                this.$roomStore.data.deleteRoom('3ff8a54ca10b1b4f')
             }
         }
     }
