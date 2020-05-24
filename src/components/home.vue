@@ -13,7 +13,6 @@
             <v-expand-transition>
                 <v-container v-show="expand">
                     <room v-for="room in $roomStore.data.roomsByHome.get(homeId)" :key="room" :roomName="room[nameString]" :roomId="room[idString]"/>
-                    <!-- <v-btn @click="createRoom">ADD ROOM</v-btn> -->
                     <addRoom :homeId="homeId"/>
                 </v-container>
             </v-expand-transition>

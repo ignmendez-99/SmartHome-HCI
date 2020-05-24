@@ -14,27 +14,6 @@ Vue.config.productionTip = false
 
 const genericUrl = 'http://127.0.0.1:8081/api/'
 
-export const dialogStore = Vue.observable({   // IDEA PARA MOSTRAR LOS DIALOGS DESDE CUALQUIER BOTON
-  data: {
-    dialogs: new Map(),
-    test: "test successful"
-  }
-})
-
-// export const dialogs = {
-//   createDialog: (deviceId) => dialogStore.data.dialogs.set(deviceId, false),
-//   test: () => console.log("AAAA FUNCIONA")
-// }
-
-// map:
-//   [deviceId1, false],
-//   [deviceId2, false],
-
-// dialogStore.data.dialogs.set(deviceId, true)   // LO QUE DEBERIAN HACER LOS DEVICE.VUE PARA MOSTRAR SUS POPUPS
-
-// PARA HACER ESTO, LOS VALUES DEL MAP DEBEN INICIALIZARSE EN FALSE. CADA device.vue DEBE HACER:
-// dialogStore.data.dialogs.set(deviceId, false). AVERIGUAR COMO ACCEDER A ESTOS STORES DESDE EL JS Y NO DESDE EL HTML.
-
 const homeStore = Vue.observable({
   data: {
     homes: [],
@@ -59,6 +38,20 @@ const homeStore = Vue.observable({
           .catch( () =>{
               console.log("FAILED TO CREATE HOME " + name)
           })
+      },
+
+      // TESTEAR
+      renameHome(homeId, newName) {
+        axios.put(genericUrl + "homes/" + homeId, {
+          name: newName,
+          meta: {}
+        })
+        .then( () => {
+          getAll()
+        })
+        .catch( () => {
+            console.log("FAILED TO RENAME HOME " + homeId + " with new name " + newName)
+        })
       }
   }
 })
@@ -129,6 +122,20 @@ const roomStore = Vue.observable({
       })
       .catch( () => {
         console.log("FAILED TO CREATE ROOM")
+      })
+    },
+
+    // TESTEAR
+    renameRoom(roomId, newName) {
+      axios.put(genericUrl + "rooms/" + roomId, {
+        name: newName,
+        meta: {}
+      })
+      .then( () => {
+        getAll()
+      })
+      .catch( () => {
+          console.log("FAILED TO RENAME ROOM " + roomId + " with new name " + newName)
       })
     }
   }
@@ -204,13 +211,26 @@ const deviceStore = Vue.observable({
     divideDevicesByRoom() {
       this.devices.forEach(this.parseDevice)
     },
+
+    // TESTEAR
+    renameDevice(deviceId, newName) {
+      axios.put(genericUrl + "devices/" + deviceId, {
+        name: newName,
+        meta: {}
+      })
+      .then( () => {
+        getAll()
+      })
+      .catch( () => {
+          console.log("FAILED TO RENAME DEVICE " + deviceId + " with new name " + newName)
+      })
+    }
   }
 })
 
 Vue.prototype.$homeStore = homeStore
 Vue.prototype.$roomStore = roomStore
 Vue.prototype.$deviceStore = deviceStore
-Vue.prototype.$dialogStore = dialogStore
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
