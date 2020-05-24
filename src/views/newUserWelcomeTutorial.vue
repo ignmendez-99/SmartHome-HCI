@@ -1,5 +1,8 @@
 <template>
     <div>
+        <doorCard/>
+        <refrigeratorCard/>
+
         <v-container>
             <v-row class="my-5">
                 <v-col align="center">
@@ -22,6 +25,8 @@
                 </v-col>
             </v-row>
         </v-container>
+
+    
 
         <v-container class="mb-12 pt-0">
             <v-row>
@@ -115,7 +120,13 @@
 </template>
 
 <script>
+    import doorCard from '../components/doorCard.vue'
+    import refrigeratorCard from '../components/refrigeratorCard.vue'
     export default {
+        components: {
+            'doorCard' : doorCard,
+            'refrigeratorCard': refrigeratorCard
+        },
         data() {
             return{
                 items: [
