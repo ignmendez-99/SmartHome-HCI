@@ -2,12 +2,17 @@
     <v-row class="mx-4">
         <p v-if="!editing" class="headline">{{roomName}}</p>
         
-        <v-text-field v-if="editing" v-model="newName" dense :placeholder=roomName filled/>
+        <v-text-field v-if="editing" v-model="newName" dense filled/>
+
+        <v-btn x-small @click="deleteRoom" class="red ml-4" fab v-show="editing">
+            <v-icon>{{deleteIcon}}</v-icon>
+        </v-btn>
+
         <v-spacer></v-spacer>
 
-        <v-btn small @click="editPressed" v-show="editing">CANCEL</v-btn>
-        <v-btn small @click="changeRoomName" v-show="editing">DONE</v-btn>
-        <v-btn small @click="editPressed" v-show="!editing && expand">EDIT</v-btn>
+        <v-btn small @click="cancelPressed" v-show="editing">CANCEL</v-btn>
+        <v-btn small @click="changeRoomName" class="mx-4 blue white--text" v-show="editing">DONE</v-btn>
+        <v-btn small @click="editPressed" class="mr-4" v-show="!editing && expand">EDIT</v-btn>
         <v-btn small @click="expandPressed">
             <v-icon>{{arrow}}</v-icon>
         </v-btn>
@@ -48,16 +53,17 @@ export default {
             typeString: "type",
             expand: false,
             arrow: "mdi-arrow-down",
-            newName: ""
+            deleteIcon: "mdi-delete",
+            newName: this.roomName
         }
     },
     methods: {
         editPressed() {
-            this.editing = !this.editing
-            if(this.editingText === "Edit")
-                this.editingText = "Done"
-            else
-                this.editingText = "Edit"
+            this.editing = true
+        },
+        cancelPressed() {
+            this.newName = this.roomName
+            this.editing = false
         },
         expandPressed() {
             this.expand = !this.expand
@@ -71,6 +77,11 @@ export default {
             this.editing = false
             if (this.newName != this.roomName)
                 this.$roomStore.data.renameRoom(this.roomId, this.newName)
+        },
+        deleteRoom() {
+            this.editing = false
+            // ACA DEBERIA PREGUNTAR CON UN POPUP O ALGO!!!!!!!!!!!!!
+            this.$roomStore.data.deleteRoom(this.roomId)
         }
     }
 }

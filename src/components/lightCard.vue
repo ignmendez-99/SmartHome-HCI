@@ -9,7 +9,10 @@
       <v-card>
         <v-container class="pb-0">
           <v-card-title class="headline blue lighten-4 pa-3" primary-title>
-            Lámpara de Nacho
+            <template v-if="!editing">
+              {{deviceName}}
+            </template>
+            <v-text-field v-if="editing" v-model="newName" dense filled/>
             <v-spacer></v-spacer>
             <v-btn color="blue lighten-1" small @click="closeCard">
                 <v-icon>mdi-close</v-icon>
@@ -68,6 +71,15 @@
                 </v-col>
               </v-row>
 
+              <v-row justify="center" class="my-8">
+                <v-btn x-small @click="deleteDevice" class="red" fab v-show="editing">
+                  <v-icon>{{deleteIcon}}</v-icon>
+                </v-btn>
+                <v-btn small @click="cancelPressed" class="mx-4" v-show="editing">CANCEL</v-btn>
+                <v-btn small @click="changeDeviceName" class="blue white--text" v-show="editing">DONE</v-btn>
+                <v-btn small @click="editPressed" v-show="!editing">EDIT</v-btn>
+              </v-row>
+
             </v-container>
           </v-card-actions>
 
@@ -91,10 +103,11 @@
 
 <script>
 export default {
-  props: {
-    deviceId: String
-  },
-  data() {
+    props: {
+      deviceId: String,
+      deviceName: String
+    },
+    data() {
     return {
       showCard: false,
       lightIsOn: false,
@@ -103,6 +116,10 @@ export default {
       timeout: 6000,    /////
       errorText: "",    // ERROR HANDLING
       snackbar: false,  /////
+
+      editing: false,
+      deleteIcon: "mdi-delete",
+      newName: this.deviceName,
 
       status: "",
       lightColor: "",
@@ -188,7 +205,8 @@ export default {
       })
     },
     closeCard() {
-      this.showCard = false;
+      this.editing = false
+      this.showCard = false
     },
     changeBrightness(selectObj) {
       this.waitingForChangeBrightness = true;
@@ -228,6 +246,23 @@ export default {
       this.errorText = message;
       this.timeout = duration;
     },
+      deleteDevice() {
+        this.editing = false
+        // ACA DEBERIA PREGUNTAR CON UN POPUP O ALGO!!!!!!!!!!!!!
+        this.$deviceStore.data.deleteDevice(this.deviceId)
+      },
+      editPressed() {
+        this.editing = true
+      },
+      cancelPressed() {
+        this.newName = this.deviceName
+        this.editing = false
+      },
+      changeDeviceName() {
+        this.editing = false
+        if (this.newName != this.deviceName)
+          this.$deviceStore.data.renameDevice(this.deviceId, this.newName)
+      }
   }
 }
 </script>
