@@ -29,10 +29,8 @@
                                     <p>Current Freezer Temperature: {{this.freezerTemperature}}</p>
                             </v-row>
                             <v-row align="center" justify="center" >
-                                    <v-btn v-show="!settingFreezerTemp" @click="settingFreezerTemp=true" small>Set</v-btn> 
                                     <v-slider
                                         v-model="freezerTemperature"
-                                        v-show="settingFreezerTemp"
                                         value="freezerTemperature"
                                         thumb-label
                                         label="Temp Freezer" 
@@ -42,18 +40,12 @@
                                     ></v-slider>
                             </v-row>
 
-                            <v-row align="center" justify="center">
-                                <v-btn v-show="settingFreezerTemp" @click="settingFreezerTemp=false" small>Done</v-btn>
-                            </v-row>
-
                             <v-row align="center" justify="center" class="mt-7">
                                 <p>Current Fridge Temperature: {{this.fridgeTemperature}}</p>
                             </v-row>
                              <v-row align="center" justify="center" >
-                                    <v-btn v-show="!settingFridgeTemp" @click="settingFridgeTemp=true" small>Set</v-btn> 
                                     <v-slider
                                         v-model="fridgeTemperature"
-                                        v-show="settingFridgeTemp"
                                         thumb-label
                                         label="Temp Heladera"
                                         min="2"
@@ -61,18 +53,13 @@
                                         @change="setTemperature"
                                     ></v-slider>
                             </v-row>
-                            <v-row align="center" justify="center">
-                                <v-btn v-show="settingFridgeTemp" @click="settingFridgeTemp=false" small>Done</v-btn>
-                            </v-row>
                             <v-row align="center" justify="center" class="mt-7">
                                 <p>Current Mode: {{this.mode}}</p>
                             </v-row>
                              <v-row align="center" justify="center" >
                                 <v-col cols=6 align="center">
-                                    <v-btn v-show="!settingMode" small @click="settingMode=true">Set</v-btn> 
                                     <v-select
                                         :items="modes"
-                                        v-show="settingMode"
                                         label="Seleccionar Modo"
                                         dense
                                         @change="setMode"
@@ -83,8 +70,8 @@
                             <v-container></v-container>
 
                             <v-row align="center" justify="center">
-                                <v-btn small>Delete</v-btn>
-                                <v-btn small @click="editPressed">{{buttonText}}</v-btn>
+                                <v-btn class="mr-6" small color="red" v-show="editing">Delete</v-btn>
+                                <v-btn class="mr-6" small @click="editPressed">{{buttonText}}</v-btn>
                             </v-row>
                         
                         </v-container>
@@ -117,10 +104,6 @@ export default {
             freezerTemperature: "",
             fridgeTemperature: "",
             mode: "",
-
-            settingFreezerTemp: false,
-            settingFridgeTemp: false,
-            settingMode: false,
 
             editing: false,
             buttonText:"Edit",
@@ -166,19 +149,6 @@ export default {
                 this.freezerTemperature = response.data.result.freezerTemperature;
                 this.fridgeTemperature = response.data.result.temperature;
                 this.mode = response.data.result.mode;
-        //         if(this.currentState === 'closed') {
-        //             this.closed = true;
-        //             this.opened = false;
-        //         } else if(this.currentState === 'opened') {
-        //             this.closed = false;
-        //             this.opened = true;
-        //         }
-        //         if(this.lockState === 'locked'){
-        //             this.locked = true;
-        //             this.unlocked = false;
-        //         } else if(this.lockState === 'unlocked'){
-        //             this.locked = false;
-        //             this.unlocked = true;
             this.waitingForSetFreezerTempConfirmation = false;
             this.waitingForSetTempConfirmation = false;
             this.waitingForSetModeConfirmation = false;
@@ -187,12 +157,9 @@ export default {
                 console.log("No se pudo recuperar el estado al abrir el Popup")
             })
         },
-        // setFreezerTemperature(newFreezerTemperature) {
-        
-        // },
         setFreezerTemperature(selectObj) {
             this.waitingForSetFreezerTempConfirmation=true;
-            console.log(selectObj);
+            console.log("New freezer temperature: " + selectObj);
             const action = '/setFreezerTemperature';
             this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + 'ecfabc2a5eb42aeb' + action, [selectObj])
             .then( () => {
@@ -205,7 +172,7 @@ export default {
         },
         setTemperature(selectObj) {
             this.waitingForSetTempConfirmation=true;
-            console.log(selectObj);
+            console.log("New temperature: " + selectObj);
             const action = '/setTemperature';
             this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + 'ecfabc2a5eb42aeb' + action, [selectObj])
             .then( () => {
@@ -218,7 +185,7 @@ export default {
         },
         setMode(selectObj) {
             this.waitingForSetModeConfirmation=true;
-            console.log(selectObj);
+            console.log("New mode: " + selectObj);
             const action = '/setMode';
             this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + 'ecfabc2a5eb42aeb' + action, [selectObj])
             .then( () => {
@@ -227,7 +194,6 @@ export default {
             .catch( () => {
                 console.log("No se pudo cambiar el modo");
             })
-            this.settingMode=false;
             this.waitingForSetModeConfirmation=false;
         }
     }

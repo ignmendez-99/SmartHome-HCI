@@ -73,8 +73,8 @@
                             <v-container></v-container>
 
                             <v-row align="center" justify="center">
-                                <v-btn small>Delete</v-btn>
-                                <v-btn small @click="editPressed">{{buttonText}}</v-btn>
+                                <v-btn class="mr-6" small color="red" v-show="editing">Delete</v-btn>
+                                <v-btn class="mr-6" small @click="editPressed">{{buttonText}}</v-btn>
                             </v-row>
                         
                         </v-container>
@@ -200,10 +200,6 @@ export default {
 
                     this.waitingForOpenConfirmation = false;
                 }
-                else{
-                    console.log("La puerta ya esta abierta");
-                    this.waitingForOpenConfirmation = false;
-                }
             })
             .catch( () => {
                 console.log("No se pudo abrir la puerta");
@@ -219,10 +215,6 @@ export default {
                     this.closed = true;
                     this.currentState = 'closed';
 
-                    this.waitingForCloseConfirmation = false;
-                }
-                else{
-                    console.log("La puerta ya esta cerrada");
                     this.waitingForCloseConfirmation = false;
                 }
             })
@@ -242,10 +234,6 @@ export default {
 
                     this.waitingForLockConfirmation = false;
                 }
-                else{
-                    console.log("La puerta ya esta con traba");
-                    this.waitingForLockConfirmation = false;
-                }
             })
             .catch( () => {
                 console.log("No se pudo trabar la puerta");
@@ -261,10 +249,6 @@ export default {
                     this.unlocked = true;
                     this.lockState = 'unlocked';
 
-                    this.waitingForUnlockConfirmation = false;
-                }
-                else{
-                    console.log("La puerta ya esta sin traba");
                     this.waitingForUnlockConfirmation = false;
                 }
             })
