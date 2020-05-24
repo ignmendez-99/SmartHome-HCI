@@ -1,14 +1,14 @@
 <template>
     <div class="text-xs-center">
-        <v-dialog v-model="dialog" width="500">
+        <v-dialog v-model="dialog" width="650">
             <!-- dialog DEBERIA REEMPLAZARSE POR $dialogStore.data.dialogs.get(deviceId). deviceId lo recibe como prop. -->
 
             <template v-slot:activator="{ on }">
                 <v-btn color="red lighten-2"  dark  v-on="on" @click="speakerManager">Click Me</v-btn>
             </template>
 
-            <v-card>
-                <v-container>
+            <v-card min-height="422">
+                <v-container >
                     <v-card-title class="headline blue lighten-4 pa-3" primary-title>
                         Speaker de Nacho
                         <v-spacer></v-spacer>
@@ -16,38 +16,9 @@
                             <v-icon>mdi-close</v-icon>
                         </v-btn>
                     </v-card-title>
-                    <v-card v-show="songInDisplay">
-                        <v-card-title>{{songTitle}}</v-card-title>
-                        <v-container class="pa-0">
-                            <v-col>
-                                <v-row>
-                                    <p class="subheading ml-5">Artist: {{songArtist}}</p>
-                                </v-row>
-                                <v-row>
-                                    <p class="subheading ml-5">Album: {{songAlbum}}</p>
-                                </v-row>
-                            </v-col>
-                        </v-container>
-                    </v-card>
                     
-                    <v-card-actions>
-                        <v-container>
-                            <v-row>
-                                <v-col cols="2" class="pb-0">
-                                    <p v-show="songInDisplay">{{songTimeElapsed}}</p>
-                                </v-col>
-                                <v-col cols="8" class="pb-0">
-                                    <v-progress-linear
-                                    v-show="songInDisplay"
-                                    v-model="progressBarLoadingNumber"
-                                    color="deep-purple accent-4"
-                                    rounded
-                                    ></v-progress-linear>
-                                </v-col>
-                                <v-col cols="2" class="pb-0">
-                                    <p v-show="songInDisplay">{{songDuration}}</p>
-                                </v-col>
-                            </v-row>
+                    <v-card-actions class="pb-0">
+                        <v-container class="pb-0">
                             <v-row justify="center" class="mb-4">
                                 <v-btn color="grey lighten-2 mr-1" v-show="songPlaying" @click="previousSong" :loading="waitingForPreviousSong">
                                     <v-icon>mdi-arrow-collapse-left</v-icon>
@@ -74,15 +45,46 @@
                                     <v-icon>mdi-volume-plus</v-icon>
                                 </v-btn>
                             </v-row>
+                            <v-row>
+                                <v-col cols="2" class="pb-0">
+                                    <p v-show="songInDisplay">{{songTimeElapsed}}</p>
+                                </v-col>
+                                <v-col cols="8" class="pb-0">
+                                    <v-progress-linear
+                                    v-show="songInDisplay"
+                                    v-model="progressBarLoadingNumber"
+                                    color="deep-purple accent-4"
+                                    rounded
+                                    ></v-progress-linear>
+                                </v-col>
+                                <v-col cols="2" class="pb-0">
+                                    <p v-show="songInDisplay">{{songDuration}}</p>
+                                </v-col>
+                            </v-row>
                             <v-select
                                 :items="genres"
                                 v-show="!songInDisplay"
-                                label="Género de música"
+                                label="Music Genre"
                                 dense
                                 @change="changeGenre"
                             ></v-select>
                         </v-container>
                     </v-card-actions>
+
+                    <v-card v-show="songInDisplay">
+                        <v-card-title>{{songTitle}}</v-card-title>
+                        <v-container class="pa-0">
+                            <v-col>
+                                <v-row>
+                                    <p class="subheading ml-5">Artist: {{songArtist}}</p>
+                                </v-row>
+                                <v-row>
+                                    <p class="subheading ml-5">Album: {{songAlbum}}</p>
+                                </v-row>
+                            </v-col>
+                        </v-container>
+                    </v-card>
+
                 </v-container>
             </v-card>
       
