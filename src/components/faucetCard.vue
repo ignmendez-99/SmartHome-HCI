@@ -25,11 +25,13 @@
                                     v-if="waitingForResponse"
                                     inset
                                     v-model="switchState"
+                                    :disabled="waitingForResponse || waitingDispensing"
                                     :label="status"
                                     ></v-switch>
                                     <v-switch
                                     v-else
                                     inset
+                                    :disabled="waitingForResponse || waitingDispensing"
                                     v-model="switchState"
                                     :label="status"
                                     @change="turnOnOffFaucet"
@@ -75,16 +77,30 @@
 
                             <v-row align="center" justify="center">
                                 <v-btn 
-                                    v-if="!waitingDispensing" 
+                                    v-if="!waitingDispensing"
                                     @click="startDispense" 
                                     color="blue lighten-1 white--text" 
+                                    :disabled="!readyToDispense"
                                     v-show="!switchState"
                                 >Set Dispense</v-btn>
-                                <v-btn v-else loading color="blue lighten-1 white--text"></v-btn>
+                                <v-btn v-else loading color="blue lighten-1 white--text" :disabled="waitingForResponse"></v-btn>
                             </v-row>
                             
                         </v-container>
                     </v-card-actions>
+
+                    <v-snackbar
+                        :timeout="timeout"
+                        left
+                        bottom
+                        multi-line
+                        v-model="snackbar"
+                        color="error"
+                    >
+                        <strong>{{ errorText }}</strong>
+                        <v-btn flat @click.native="snackbar = false">Close</v-btn>
+                    </v-snackbar>
+
                 </v-container>
             </v-card>
         </v-dialog>
@@ -96,8 +112,12 @@ export default {
     data() {
         return {
             showCard: false,
-            status: "opened",
+            status: "Please wait...",
             switchState: true,
+
+            timeout: 6000,    /////
+            errorText: "",    // ERROR HANDLING
+            snackbar: false,  /////
             
             quantity: 0,
             unit: "",
@@ -106,6 +126,8 @@ export default {
             units: ["ml", "cl", "dl", "l", "dal", "hl", "kl"],
             quantityToDispense: 0,
             unitToDispense: "",
+            readyToDispense: false,
+
             waitingForResponse: false,
             waitingDispensing: false,
             secondsUpdater: 0
@@ -116,36 +138,45 @@ export default {
             this.showCard = false;
             clearInterval(this.secondsUpdater);
         },
-        turnOnOffFaucet() {            
-            if(this.switchState === false) {
-                this.waitingForResponse = true;
+        turnOnOffFaucet() {     
+            this.waitingForResponse = true;       
+            if(this.switchState === false)
                 this.close();
-            } else {
-                this.waitingForResponse = true;
+            else
                 this.open();
-            }
         },
         faucetManager() {            
             const state = '/state';
+            this.waitingDispensing = true;
+            this.waitingForResponse = true;
             this.axios.get('http://127.0.0.1:8081/api/' + 'devices/' + 'ae30d6dea5a2a045' + state)
             .then( (response) => {
-                this.status = response.data.result.status;
-                if(this.status === 'closed')
-                    this.switchState = false;
-                else {
-                    this.switchState = true;
-                    if(typeof response.data.result.quantity != "undefined") {
-                        this.getDispensedData(response.data.result);
-                        this.getDispensedQuantity();
-                    } else {
-                        this.quantity = "NO LIMIT";
-                        this.unit = "";
-                        this.dispensedQuantity = 0;
+                if(response.data.result.status != "undefined") {
+                    this.status = response.data.result.status;
+                    if(this.status === 'closed') {
+                        this.switchState = false;
+                        this.waitingDispensing = false;
+                        this.waitingForResponse = false;
                     }
-                }
+                    else if(this.status === 'opened'){
+                        this.switchState = true;
+                        if(typeof response.data.result.quantity != "undefined") {
+                            this.getDispensedData(response.data.result);
+                            this.startDispenseInterval();
+                        } else {
+                            this.quantity = "NO LIMIT";
+                            this.unit = "";
+                            this.dispensedQuantity = 0;
+                        }
+                        this.waitingDispensing = false;
+                        this.waitingForResponse = false;
+                    } else
+                        this.throwErrorMessage("Could not load Device state. Try again later.", 0); 
+                } else
+                    this.throwErrorMessage("Could not load Device state. Try again later.", 0); 
             })
             .catch( () => {
-                console.log("No se pudo obtener el estado del faucet");
+                this.throwErrorMessage("Could not load Device state. Try again later.", 0);
             })
         },
         open() {
@@ -167,11 +198,13 @@ export default {
                     this.waitingForResponse = false;
                 })
                 .catch( () => {
-                    console.log("No se pudo obtener el estado del faucet");
+                    this.throwErrorMessage("Could not load Device state. Try again later.", 0);
+                    this.waitingForResponse = false;
                 })           
             })
             .catch( () => {
-                console.log("No se pudo abrir el faucet");
+                this.throwErrorMessage("Could not open the Faucet. Try again later.", 6000);
+                this.waitingForResponse = false;
             })
         },
         close() {
@@ -183,7 +216,8 @@ export default {
                 this.waitingForResponse = false;
             })
             .catch( () => {
-                console.log("No se pudo cerrar el faucet");
+                this.throwErrorMessage("Could not open the Faucet. Try again later.", 6000);
+                this.waitingForResponse = false;
             })
         },
         getDispensedData(result) {            
@@ -193,11 +227,15 @@ export default {
         },
         setUnitToDispense(selectObj) {
             this.unitToDispense = selectObj;
+            if(this.unitToDispense != "" && this.quantityToDispense != 0)
+                this.readyToDispense = true;
         },
         setDispenseQuantity(selectObj) {
             this.quantityToDispense = selectObj;
+            if(this.unitToDispense != "" && this.quantityToDispense != 0)
+                this.readyToDispense = true;
         },
-        getDispensedQuantity: function() {
+        startDispenseInterval: function() {
             this.secondsUpdater = window.setInterval( () => {
                 this.axios.get('http://127.0.0.1:8081/api/' + 'devices/' + 'ae30d6dea5a2a045' + '/state')
                 .then( (response) => {
@@ -210,6 +248,14 @@ export default {
                         clearInterval(this.secondsUpdater);
                     }
                 })
+                .catch( () => {
+                    this.throwErrorMessage("Could not get device status. Try again later.", 0);
+                    this.switchState = false;
+                    this.waitingForResponse = false;
+                    this.waitingForResponse = true;
+                    this.waitingDispensing = true;
+                    clearInterval(this.secondsUpdater);
+                })
             }, 3000); 
         },
         startDispense() {
@@ -221,16 +267,24 @@ export default {
                 if(response.data.result === true) {
                     this.switchState = true;
                     this.status = 'opened';
-                    this.getDispensedQuantity();
+                    this.startDispenseInterval();
                     this.quantity = this.quantityToDispense;
                     this.unit = this.unitToDispense;
                     this.dispensedQuantity = 0;
-                    this.waitingDispensing = false;
+                } else {
+                    this.throwErrorMessage("Could not dispense. Try again later.", 6000);
                 }
+                this.waitingDispensing = false;
             })
             .catch( () => {
-                console.log("No se logro setear el volumen a dispensar");
+                this.throwErrorMessage("Could not dispense. Try again later.", 6000);
+                this.waitingDispensing = false;
             })
+        },
+        throwErrorMessage(message, duration) {
+            this.snackbar = true;
+            this.errorText = message;
+            this.timeout = duration;
         }
     }
 }
