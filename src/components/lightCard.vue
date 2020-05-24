@@ -19,7 +19,6 @@
           <v-card-actions class="pb-0">
             <v-container class="pb-0">
               <v-row align="center" justify="center" class="mb-5">
-
                 <v-btn 
                   @click="turnOnLight"
                   color="blue lighten-1 white--text"
@@ -33,43 +32,32 @@
                   :loading="waitingTurnOff"
                   :disabled="lightIsOff"
                 >OFF</v-btn>
-
               </v-row>
-              <v-row align="center" justify="center">
-                <v-progress-linear 
-                height="25" 
-                :value="lightBrightness" 
-                color="amber" 
-                :indeterminate="waitingForChangeBrightness"
+
+              <v-row align="center" justify="center" class="mt-12">
+                <v-slider
+                  class="mr-2"
+                  v-model="lightBrightness"
+                  thumb-label="always"
+                  label="Brightness" 
+                  min="0"
+                  max="100"
+                  @change="changeBrightness"
                 >
-                  <strong>Brightness: {{ lightBrightness }}%</strong>
-                </v-progress-linear>
-              </v-row>
-
-              <v-row align="center" justify="center">
-                <v-col cols="7" class="pt-0">
-                  <v-text-field
-                    @change="setBrightnessToChange" 
-                    counter
-                    maxlength="3"
-                    label="Set new brightness Level"
-                    hint="Number between 1 and 100"
-                    persistent-hint
-                  ></v-text-field>
-                </v-col>
-                <v-col cols="5">
-                  <v-btn 
-                    @click="changeBrightness" 
-                    color="blue lighten-1 white--text" 
-                    :loading="waitingForChangeBrightness"
-                    :disabled="!readyToChangeBrightness"
-                  >CHANGE</v-btn>
-                </v-col>
+                  <template v-slot:thumb-label="{ value }">
+                    <v-icon color="white">{{ showBrightnessThumb(value) }}</v-icon>
+                  </template>
+                </v-slider>
               </v-row>
 
               <v-row align="center" justify="center">
                 <v-col cols="6">
-                  <v-color-picker mode="hexa" hide-mode-switch  v-model="lightColor"></v-color-picker>
+                  <v-color-picker 
+                    mode="hexa" 
+                    hide-mode-switch  
+                    v-model="lightColor"
+                    hide-inputs
+                  ></v-color-picker>
                 </v-col>
                 <v-col cols="6">
                   <v-btn 
@@ -119,9 +107,6 @@ export default {
       status: "",
       lightColor: "",
       lightBrightness: 0,  // [0-100]
-
-      brightnessToChange: 0,  // [0-100]
-      readyToChangeBrightness: false,
 
       waitingTurnOn: false,
       waitingTurnOff: false,
@@ -205,27 +190,25 @@ export default {
     closeCard() {
       this.showCard = false;
     },
-    changeBrightness() {
+    changeBrightness(selectObj) {
       this.waitingForChangeBrightness = true;
       const action = '/setBrightness';
-      this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + action, [this.brightnessToChange])
-      .then( (response) => {
-        if(response.data.result === this.lightBrightness)
-          this.lightBrightness = this.brightnessToChange;
-        else
-          this.throwErrorMessage("Could not change brightness. Try again later.", 6000);
+      this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + action, [selectObj])
+      .then( () => {
         this.waitingForChangeBrightness = false;
-        this.readyToChangeBrightness = false;
       })
       .catch( () => {
         this.throwErrorMessage("Could not change brightness. Try again later.", 6000);
         this.waitingForChangeBrightness = false;
-        this.readyToChangeBrightness = false;
       })
     },
-    setBrightnessToChange(selectObj) {
-      this.brightnessToChange = selectObj;
-      this.readyToChangeBrightness = true;
+    showBrightnessThumb(value) {
+      if(value >= 85)
+        return "mdi-white-balance-sunny";
+      else if(value <= 15)
+        return "mdi-brightness-3";
+      else
+        return "mdi-brightness-6";
     },
     changeColor() {
       this.waitingForColorChange = true;
@@ -244,7 +227,7 @@ export default {
       this.snackbar = true;
       this.errorText = message;
       this.timeout = duration;
-    }
+    },
   }
 }
 </script>

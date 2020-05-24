@@ -4,10 +4,6 @@
     <!-- dejamos un pequeños espacio entre la toolbar y el titulo de la pagina -->
     <v-layout class="my-9"/>
 
-    <speakerCard/>
-    <faucetCard/>
-    <blindsCard/>
-    <lightCard/>
     <createRoutine/>
 
     <v-layout row wrap justify-center>
@@ -64,17 +60,9 @@
 </style>
 
 <script>
-  import speakerCard from '../components/speakerCard.vue'
-  import faucetCard from '../components/faucetCard.vue'
-  import blindsCard from '../components/blindsCard.vue'
-  import lightCard from '../components/lightCard.vue'
   import createRoutine from '../components/routineCard.vue'
   export default {
     components: {
-      'speakerCard': speakerCard,
-      'faucetCard' : faucetCard,
-      'blindsCard' : blindsCard,
-      'lightCard'  : lightCard,
       'createRoutine' : createRoutine
     }
   }
