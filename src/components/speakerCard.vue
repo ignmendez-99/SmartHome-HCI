@@ -9,7 +9,10 @@
             <v-card min-height="462">
                 <v-container>
                     <v-card-title class="headline blue lighten-4 pa-3" primary-title>
-                        Speaker de Nacho
+                        <template v-if="!editing">
+                            {{deviceName}}
+                        </template>
+                        <v-text-field v-if="editing" v-model="newName" dense filled/>
                         <v-spacer></v-spacer>
                         <v-btn color="blue lighten-1" small @click="closeCard">
                             <v-icon>mdi-close</v-icon>
@@ -64,6 +67,7 @@
                                     <p v-show="songInDisplay">{{songDuration}}</p>
                                 </v-col>
                             </v-row>
+
                             <v-select
                                 :items="genres"
                                 v-show="!songInDisplay"
@@ -71,6 +75,8 @@
                                 dense
                                 @change="changeGenre"
                             ></v-select>
+
+
                         </v-container>
                     </v-card-actions>
 
@@ -88,6 +94,15 @@
                         </v-container>
                     </v-card>
 
+                    <v-row justify="center" class="mt-8 mb-6">
+                        <v-btn x-small @click="deleteDevice" class="red" fab v-show="editing">
+                            <v-icon>{{deleteIcon}}</v-icon>
+                        </v-btn>
+                        <v-btn small @click="cancelPressed" class="mx-4" v-show="editing">CANCEL</v-btn>
+                        <v-btn small @click="changeDeviceName" class="blue white--text" v-show="editing">DONE</v-btn>
+                        <v-btn small @click="editPressed" v-show="!editing">EDIT</v-btn>
+                    </v-row>
+
                     <v-snackbar
                         :timeout="timeout"
                         left
@@ -100,6 +115,8 @@
                         <v-btn @click.native="snackbar = false">Close</v-btn>
                     </v-snackbar>
 
+                    
+
                 </v-container>
             </v-card>
         </v-dialog>
@@ -110,7 +127,8 @@
 
 export default {
     props: {
-        deviceId: String
+        deviceId: String,
+        deviceName: String
     },
     data () {
         return {
@@ -127,6 +145,10 @@ export default {
             timeout: 6000,    /////
             errorText: "",    // ERROR HANDLING
             snackbar: false,  /////
+
+            editing: false,
+            deleteIcon: "mdi-delete",
+            newName: this.deviceName,
 
             waitingForPreviousSong: false,
             waitingForPlaySong: false,
@@ -386,6 +408,23 @@ export default {
             this.snackbar = true;
             this.errorText = message;
             this.timeout = duration;
+        },
+        changeDeviceName() {
+            this.editing = false
+            if (this.newName != this.deviceName)
+                this.$deviceStore.data.renameDevice(this.deviceId, this.newName)
+        },
+        deleteDevice() {
+            this.editing = false
+            // ACA DEBERIA PREGUNTAR CON UN POPUP O ALGO!!!!!!!!!!!!!
+            this.$deviceStore.data.deleteDevice(this.deviceId)
+        },
+        editPressed() {
+            this.editing = true
+        },
+        cancelPressed() {
+            this.newName = this.deviceName
+            this.editing = false
         }
     }
 }
