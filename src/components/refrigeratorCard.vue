@@ -78,6 +78,18 @@
                         </v-container>
                     </v-card-actions>
 
+                    <v-snackbar
+                        :timeout="timeout"
+                        left
+                        bottom
+                        multi-line
+                        v-model="snackbar"
+                        color="error"
+                    >
+                        <strong>{{ errorText }}</strong>
+                        <v-btn @click.native="snackbar = false">Close</v-btn>
+                    </v-snackbar>
+
                 </v-container>
             </v-card>
         </v-dialog>
@@ -105,6 +117,10 @@ export default {
             waitingForSetTempConfirmation: false,
             waitingForSetModeConfirmation: false,
 
+            timeout: 6000,    /////
+            errorText: "",    // ERROR HANDLING
+            snackbar: false,  /////
+
             freezerTemperature: "",
             fridgeTemperature: "",
             mode: "",
@@ -112,12 +128,9 @@ export default {
             editing: false,
             deleteIcon: "mdi-delete",
             newName: this.deviceName,
-        
         }
     },
     methods: {
-        
-        
         closeRefrigeratorCard(){
             this.showCard = false;
             this.editing = false;
@@ -126,9 +139,15 @@ export default {
             const state = '/state';
             this.axios.get('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + state)
             .then( (response) => {
-                this.freezerTemperature = response.data.result.freezerTemperature;
-                this.fridgeTemperature = response.data.result.temperature;
-                this.mode = response.data.result.mode;
+                if(response.data.result.temperature != "undefined") {
+                    this.freezerTemperature = response.data.result.freezerTemperature;
+                    this.fridgeTemperature = response.data.result.temperature;
+                    this.mode = response.data.result.mode;
+                } else
+                    this.throwErrorMessage("Could not get Device state. Try again later.", 0);
+            })
+            .catch( () => {
+                this.throwErrorMessage("Could not get Device state. Try again later.", 0);
             })
         },
         refrigeratorManager(){
@@ -138,55 +157,63 @@ export default {
             this.waitingForSetModeConfirmation = true;
             this.axios.get('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + state)
             .then( (response) => {
-                this.freezerTemperature = response.data.result.freezerTemperature;
-                this.fridgeTemperature = response.data.result.temperature;
-                this.mode = response.data.result.mode;
-            this.waitingForSetFreezerTempConfirmation = false;
-            this.waitingForSetTempConfirmation = false;
-            this.waitingForSetModeConfirmation = false;
+                if(response.data.result.temperature != "undefined") {
+                    this.freezerTemperature = response.data.result.freezerTemperature;
+                    this.fridgeTemperature = response.data.result.temperature;
+                    this.mode = response.data.result.mode;
+                    this.waitingForSetFreezerTempConfirmation = false;
+                    this.waitingForSetTempConfirmation = false;
+                    this.waitingForSetModeConfirmation = false;
+                } else
+                    this.throwErrorMessage("Could not get Device state. Try again later.", 0);
             })
             .catch( () => {
-                console.log("No se pudo recuperar el estado al abrir el Popup")
+                this.throwErrorMessage("Could not get Device state. Try again later.", 0);
             })
         },
         setFreezerTemperature(selectObj) {
             this.waitingForSetFreezerTempConfirmation=true;
-            console.log("New freezer temperature: " + selectObj);
             const action = '/setFreezerTemperature';
             this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + action, [selectObj])
             .then( () => {
                 this.getCurrentState();
+                this.waitingForSetFreezerTempConfirmation=false;
             })
             .catch( () => {
-                console.log("No se pudo cambiar la temperatura del freezer");
+                this.throwErrorMessage("Could not set freezer temperature. Try again later.", 6000);
+                this.waitingForSetFreezerTempConfirmation=false;
             })
-            this.waitingForSetFreezerTempConfirmation=false;
         },
         setTemperature(selectObj) {
             this.waitingForSetTempConfirmation=true;
-            console.log("New temperature: " + selectObj);
             const action = '/setTemperature';
             this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + action, [selectObj])
             .then( () => {
                 this.getCurrentState();
+                this.waitingForSetTempConfirmation=false;
             })
             .catch( () => {
-                console.log("No se pudo cambiar la temperatura");
+                this.throwErrorMessage("Could not set temperature. Try again later.", 6000);
+                this.waitingForSetTempConfirmation=false;
             })
-            this.waitingForSetTempConfirmation=false;
         },
         setMode(selectObj) {
             this.waitingForSetModeConfirmation=true;
-            console.log("New mode: " + selectObj);
             const action = '/setMode';
             this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + action, [selectObj])
             .then( () => {
                 this.getCurrentState();
+                this.waitingForSetModeConfirmation=false;
             })
             .catch( () => {
-                console.log("No se pudo cambiar el modo");
+                this.throwErrorMessage("Could not set mode. Try again later.", 6000);
+                this.waitingForSetModeConfirmation=false;
             })
-            this.waitingForSetModeConfirmation=false;
+        },
+        throwErrorMessage(message, duration) {
+            this.snackbar = true;
+            this.errorText = message;
+            this.timeout = duration;
         },
         changeDeviceName() {
             this.editing = false
