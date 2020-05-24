@@ -25,6 +25,7 @@
         <lightCard v-if="deviceTypeId === 'go46xmbqeomjrsjr'" :deviceId="deviceId" id="overlay"/> 
         <doorCard v-if="deviceTypeId === 'lsf78ly0eqrjbz91'" :deviceId="deviceId" id="overlay"/> 
         <refrigeratorCard v-if="deviceTypeId === 'rnizejqr2di0okho'" :deviceId="deviceId" id="overlay"/> 
+        <blindsCard v-if="deviceTypeId === 'eu0v2xgprrhhg41g'" :deviceId="deviceId" id="overlay"/> 
 
 
 
@@ -44,6 +45,7 @@ import faucetCard from "./faucetCard"
 import lightCard from "./lightCard"
 import doorCard from "./doorCard"
 import refrigeratorCard from "./refrigeratorCard"
+import blindsCard from "./blindsCard"
 
 export default {
     props: {
@@ -56,7 +58,8 @@ export default {
         'faucetCard': faucetCard,
         'lightCard': lightCard,
         'doorCard': doorCard,
-        'refrigeratorCard': refrigeratorCard
+        'refrigeratorCard': refrigeratorCard,
+        'blindsCard': blindsCard
     },
     data() {
         return{

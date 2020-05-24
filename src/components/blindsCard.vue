@@ -3,7 +3,7 @@
         <v-dialog v-model="showCard" width="500">
 
             <template v-slot:activator="{ on }">
-                <v-btn color="red lighten-2"  dark  v-on="on" @click="blindsManager">Click Me</v-btn>
+                <v-btn class="pa-0 ma-0" height="250" depressed block color="transparent transparent--text" v-on="on" @click="blindsManager">Click Me</v-btn>
             </template>
 
             <v-card min-height="400">
