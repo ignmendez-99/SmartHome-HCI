@@ -36,13 +36,20 @@
                                 </v-btn>
                             </v-row>
                             <v-row justify="center" class="mb-3">
-                                <v-btn color="grey lighten-2" @click="volumeDown" :loading="waitingForVolumeDown">
+                                <v-slider
+                                    v-model="volumeNumber"
+                                    label="Volume" 
+                                    min="0"
+                                    max="10"
+                                    @change="setVolume"
+                                ></v-slider>
+                                <!-- <v-btn color="grey lighten-2" @click="volumeDown" :loading="waitingForVolumeDown">
                                     <v-icon>mdi-volume-minus</v-icon>
                                 </v-btn>
                                 <p class="title mx-4 my-1">{{ this.volumeNumber }}</p>
                                 <v-btn color="grey lighten-2" @click="volumeUp" :loading="waitingForVolumeUp">
                                     <v-icon>mdi-volume-plus</v-icon>
-                                </v-btn>
+                                </v-btn> -->
                             </v-row>
                             <v-row>
                                 <v-col cols="2" class="pb-0">
@@ -51,6 +58,7 @@
                                 <v-col cols="8" class="pb-0">
                                     <v-progress-linear
                                     v-show="songInDisplay"
+                                    ticks
                                     v-model="progressBarLoadingNumber"
                                     color="deep-purple accent-4"
                                     rounded
@@ -114,8 +122,7 @@ export default {
             waitingForPauseSong: false,
             waitingForStopSong: false,
             waitingForNextSong: false,
-            waitingForVolumeDown: false,
-            waitingForVolumeUp: false,
+            waitingForVolumeChange: false,
 
             genres: ["pop", "rock", "classical", "country", "dance", "latina"],
 
@@ -186,40 +193,33 @@ export default {
             } else
                 this.waitingForStopSong = false;
         },
-        setVolume: function(newVolumeNumber) {
+        setVolume: function() {
+            this.waitingForVolumeChange = true;
             const action = '/setVolume';
-            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + action, [newVolumeNumber])
+            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + action, [this.volumeNumber])
             .then( () => {
-                this.axios.get('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + '/state')
-                .then( (response) => {
-                    this.volumeNumber = response.data.result.volume;
-                    this.waitingForVolumeDown = false;
-                    this.waitingForVolumeUp = false;
-                })
-                .catch( () => {
-                    console.log("No se pudo obtener el estado del dispositivo")
-                })
+                this.waitingForVolumeChange = false;
             })
             .catch( () => {
                 console.log("No se pudo cambiar el volumen");
             })
         },
-        volumeDown: function() {
-            if(this.volumeNumber > 0) {
-                this.waitingForVolumeDown = true;
-                this.waitingForVolumeUp = true;
-                const aux = this.volumeNumber - 1;
-                this.setVolume(aux.toString()); // lo paso en formato String
-            }
-        },
-        volumeUp: function() {
-            if(this.volumeNumber < 10) {
-                this.waitingForVolumeDown = true;
-                this.waitingForVolumeUp = true;
-                const aux = parseInt(this.volumeNumber) + parseInt(1);
-                this.setVolume(aux.toString()); // lo paso en formato String
-            }
-        },
+        // volumeDown: function() {
+        //     if(this.volumeNumber > 0) {
+        //         this.waitingForVolumeDown = true;
+        //         this.waitingForVolumeUp = true;
+        //         const aux = this.volumeNumber - 1;
+        //         this.setVolume(aux.toString()); // lo paso en formato String
+        //     }
+        // },
+        // volumeUp: function() {
+        //     if(this.volumeNumber < 10) {
+        //         this.waitingForVolumeDown = true;
+        //         this.waitingForVolumeUp = true;
+        //         const aux = parseInt(this.volumeNumber) + parseInt(1);
+        //         this.setVolume(aux.toString()); // lo paso en formato String
+        //     }
+        // },
         previousSong: function() {
             this.waitingForPreviousSong = true;
             const action = '/previousSong';
