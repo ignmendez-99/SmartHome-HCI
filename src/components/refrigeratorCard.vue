@@ -3,7 +3,7 @@
         <v-dialog v-model="showCard" width="500">
 
             <template v-slot:activator="{ on }">
-                <v-btn color="red lighten-2"  dark  v-on="on" @click="refrigeratorManager">Click Me</v-btn>
+                <v-btn class="pa-0 ma-0" height="250" depressed block color="transparent transparent--text" v-on="on" @click="refrigeratorManager">Click Me</v-btn>
             </template>
 
             <v-card>
@@ -99,6 +99,9 @@
 
 <script>
 export default {
+    props: {
+        deviceId: String
+    },
     data() {
         return {
             showCard: false,
@@ -149,7 +152,7 @@ export default {
         },
         getCurrentState() {
             const state = '/state';
-            this.axios.get('http://127.0.0.1:8081/api/' + 'devices/' + 'ecfabc2a5eb42aeb' + state)
+            this.axios.get('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + state)
             .then( (response) => {
                 this.freezerTemperature = response.data.result.freezerTemperature;
                 this.fridgeTemperature = response.data.result.temperature;
@@ -161,7 +164,7 @@ export default {
             this.waitingForSetFreezerTempConfirmation = true;
             this.waitingForSetTempConfirmation = true;
             this.waitingForSetModeConfirmation = true;
-            this.axios.get('http://127.0.0.1:8081/api/' + 'devices/' + 'ecfabc2a5eb42aeb' + state)
+            this.axios.get('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + state)
             .then( (response) => {
                 this.freezerTemperature = response.data.result.freezerTemperature;
                 this.fridgeTemperature = response.data.result.temperature;
@@ -194,7 +197,7 @@ export default {
             this.waitingForSetFreezerTempConfirmation=true;
             console.log(selectObj);
             const action = '/setFreezerTemperature';
-            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + 'ecfabc2a5eb42aeb' + action, [selectObj])
+            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + action, [selectObj])
             .then( () => {
                 this.getCurrentState();
             })
@@ -207,7 +210,7 @@ export default {
             this.waitingForSetTempConfirmation=true;
             console.log(selectObj);
             const action = '/setTemperature';
-            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + 'ecfabc2a5eb42aeb' + action, [selectObj])
+            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + action, [selectObj])
             .then( () => {
                 this.getCurrentState();
             })
@@ -220,7 +223,7 @@ export default {
             this.waitingForSetModeConfirmation=true;
             console.log(selectObj);
             const action = '/setMode';
-            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + 'ecfabc2a5eb42aeb' + action, [selectObj])
+            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + action, [selectObj])
             .then( () => {
                 this.getCurrentState();
             })

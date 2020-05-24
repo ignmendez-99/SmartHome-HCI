@@ -1,6 +1,7 @@
 <template>
     <v-row>
-    <p id="npnm" class="headline">{{homeName}}</p>
+        <p v-if="!editing" class="headline">{{homeName}}</p>
+        <!-- <v-text-field v-if="editing" dense placeholder=homeName filled/> VER ESTO -->
         <v-spacer></v-spacer>
         <v-btn small @click="editPressed" v-show="expand">{{editingText}}</v-btn>
         <v-btn small @click="expandPressed">
@@ -53,8 +54,11 @@ export default {
         },
         expandPressed() {
             this.expand = !this.expand
-            if(this.arrow === "mdi-arrow-down")
+            if(this.arrow === "mdi-arrow-down") {
                 this.arrow = "mdi-arrow-up"
+                this.editingText = "Edit"
+                editing: false
+            }
             else
                 this.arrow = "mdi-arrow-down"
         }
