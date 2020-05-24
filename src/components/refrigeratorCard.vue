@@ -9,13 +9,10 @@
             <v-card>
                 <v-container>
                     <v-card-title class="headline blue lighten-4 pa-3" primary-title>
-                        <div v-if="editing">
-                            <v-text-field
-                                v-model="newDeviceName"
-                                maxlength="30"
-                            ></v-text-field>
-                        </div>
-                        <div v-else>{{deviceName}}</div>
+                        <template v-if="!editing">
+                            {{deviceName}}
+                        </template>
+                        <v-text-field v-if="editing" v-model="newName" dense counter maxlength="25" filled/>
                         <v-spacer></v-spacer>
 
                         <v-btn color="blue lighten-1" small @click="closeRefrigeratorCard">
@@ -69,9 +66,13 @@
 
                             <v-container></v-container>
 
-                            <v-row align="center" justify="center">
-                                <v-btn class="mr-6" small color="red" v-show="editing">Delete</v-btn>
-                                <v-btn class="mr-6" small @click="editPressed">{{buttonText}}</v-btn>
+                            <v-row justify="center">
+                                <v-btn x-small @click="deleteDevice" class="red" fab v-show="editing">
+                                    <v-icon>{{deleteIcon}}</v-icon>
+                                </v-btn>
+                                <v-btn small @click="cancelPressed" class="mx-4" v-show="editing">CANCEL</v-btn>
+                                <v-btn small @click="changeDeviceName" class="blue white--text" v-show="editing">DONE</v-btn>
+                                <v-btn small @click="editPressed" v-show="!editing">EDIT</v-btn>
                             </v-row>
                         
                         </v-container>
@@ -87,7 +88,8 @@
 <script>
 export default {
     props: {
-        deviceId: String
+        deviceId: String,
+        deviceName: String
     },
     data() {
         return {
@@ -95,7 +97,6 @@ export default {
         
             modes: ["default", "vacation", "party"],
 
-            deviceName: "Heladera de franco",
             newDeviceName: "",
 
             slider: "",
@@ -109,29 +110,17 @@ export default {
             mode: "",
 
             editing: false,
-            buttonText:"Edit",
+            deleteIcon: "mdi-delete",
+            newName: this.deviceName,
         
         }
     },
     methods: {
-        editPressed() {
-            this.editing = !this.editing
-            if(this.buttonText === "Edit"){
-                this.buttonText = "Done"
-            }else{
-                if(this.deviceName != this.newDeviceName){
-                    if(this.newDeviceName != ""){
-                        this.deviceName=this.newDeviceName
-                    }
-                }
-                this.buttonText = "Edit"
-            }
-        },
+        
         
         closeRefrigeratorCard(){
             this.showCard = false;
-            if(this.editing === true)
-                this.editing = false;
+            this.editing = false;
         },
         getCurrentState() {
             const state = '/state';
@@ -198,6 +187,23 @@ export default {
                 console.log("No se pudo cambiar el modo");
             })
             this.waitingForSetModeConfirmation=false;
+        },
+        changeDeviceName() {
+            this.editing = false
+            if (this.newName != this.deviceName)
+                this.$deviceStore.data.renameDevice(this.deviceId, this.newName)
+        },
+        deleteDevice() {
+            this.editing = false
+            // ACA DEBERIA PREGUNTAR CON UN POPUP O ALGO!!!!!!!!!!!!!
+            this.$deviceStore.data.deleteDevice(this.deviceId)
+        },
+        editPressed() {
+            this.editing = true
+        },
+        cancelPressed() {
+            this.newName = this.deviceName
+            this.editing = false
         }
     }
 }

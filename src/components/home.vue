@@ -2,7 +2,7 @@
     <v-row>
         <p v-if="!editing" class="headline">{{homeName}}</p>
         
-        <v-text-field v-if="editing" v-model="newName" dense filled/>
+        <v-text-field v-if="editing" v-model="newName" dense counter maxlength="25" filled/>
         <v-btn x-small @click="deleteHome" class="red ml-4" fab v-show="editing">
             <v-icon>{{deleteIcon}}</v-icon>
         </v-btn>

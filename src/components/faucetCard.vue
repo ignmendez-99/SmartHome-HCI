@@ -12,7 +12,7 @@
                         <template v-if="!editing">
                             {{deviceName}}
                         </template>
-                        <v-text-field v-if="editing" v-model="newName" dense filled/>
+                        <v-text-field v-if="editing" v-model="newName" dense counter maxlength="25" filled/>
                         <v-spacer></v-spacer>
                         <v-btn color="blue lighten-1" small @click="closeFaucetCard">
                             <v-icon>mdi-close</v-icon>
@@ -156,6 +156,7 @@ export default {
     methods: {
         closeFaucetCard() {
             this.showCard = false;
+            this.editing = false
             clearInterval(this.secondsUpdater);
         },
         turnOnOffFaucet() {     
