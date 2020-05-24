@@ -3,7 +3,7 @@
         <v-dialog v-model="showCard" width="500">
 
             <template v-slot:activator="{ on }">
-                <v-btn color="red lighten-2"  dark  v-on="on" @click="faucetManager">Click Me</v-btn>
+                <v-btn class="pa-0 ma-0" height="250" depressed block color="transparent transparent--text"  v-on="on" @click="faucetManager">Click Me</v-btn>
             </template>
 
             <v-card>
@@ -109,6 +109,9 @@
 
 <script>
 export default {
+    props: {
+        deviceId: String
+    },
     data() {
         return {
             showCard: false,
@@ -149,7 +152,7 @@ export default {
             const state = '/state';
             this.waitingDispensing = true;
             this.waitingForResponse = true;
-            this.axios.get('http://127.0.0.1:8081/api/' + 'devices/' + 'ae30d6dea5a2a045' + state)
+            this.axios.get('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + state)
             .then( (response) => {
                 if(response.data.result.status != "undefined") {
                     this.status = response.data.result.status;
@@ -181,11 +184,11 @@ export default {
         },
         open() {
             const open = '/open';
-            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + 'ae30d6dea5a2a045' + open)
+            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + open)
             .then( () => {
                 this.switchState = true;
                 this.status = 'opened';
-                this.axios.get('http://127.0.0.1:8081/api/' + 'devices/' + 'ae30d6dea5a2a045' + '/state')
+                this.axios.get('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + '/state')
                 .then( (response) => {
                     if(typeof response.data.result.quantity != "undefined") {
                         this.getDispensedData(response.data.result);
@@ -209,7 +212,7 @@ export default {
         },
         close() {
             const close = '/close';
-            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + 'ae30d6dea5a2a045' + close)
+            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + close)
             .then( () => {
                 this.switchState = false;                
                 this.status = 'closed';
@@ -237,7 +240,7 @@ export default {
         },
         startDispenseInterval: function() {
             this.secondsUpdater = window.setInterval( () => {
-                this.axios.get('http://127.0.0.1:8081/api/' + 'devices/' + 'ae30d6dea5a2a045' + '/state')
+                this.axios.get('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + '/state')
                 .then( (response) => {
                     if(typeof response.data.result.dispensedQuantity != "undefined")
                         this.dispensedQuantity = Math.floor((response.data.result.dispensedQuantity * 100) / this.quantity);
@@ -261,7 +264,7 @@ export default {
         startDispense() {
             const action = '/dispense';
             this.waitingDispensing = true;
-            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + 'ae30d6dea5a2a045' + action, 
+            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + action, 
                 [this.quantityToDispense, this.unitToDispense.toString()] )
             .then( (response) => {
                 if(response.data.result === true) {

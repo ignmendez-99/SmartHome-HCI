@@ -21,6 +21,11 @@
 
         <!-- debería mandarlo solo si es speaker -->
         <speakerCard v-if="deviceTypeId === 'c89b94e8581855bc'" :deviceId="deviceId" id="overlay"/> 
+        <faucetCard v-if="deviceTypeId === 'dbrlsh7o5sn8ur4i'" :deviceId="deviceId" id="overlay"/> 
+        <lightCard v-if="deviceTypeId === 'go46xmbqeomjrsjr'" :deviceId="deviceId" id="overlay"/> 
+
+
+
     </v-col>
 </template>
 
@@ -33,6 +38,8 @@
 
 <script>
 import speakerCard from "./speakerCard"
+import faucetCard from "./faucetCard"
+import lightCard from "./lightCard"
 
 export default {
     props: {
@@ -41,7 +48,9 @@ export default {
         deviceTypeId: String
     },
     components: {
-        'speakerCard': speakerCard
+        'speakerCard': speakerCard,
+        'faucetCard': faucetCard,
+        'lightCard': lightCard
     },
     data() {
         return{

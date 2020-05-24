@@ -3,7 +3,7 @@
     <v-dialog v-model="showCard" width="500">
 
       <template v-slot:activator="{ on }">
-        <v-btn color="red lighten-2"  dark  v-on="on" @click="lightManager">Click Me</v-btn>
+        <v-btn class="pa-0 ma-0" height="250" depressed block color="transparent transparent--text"  v-on="on" @click="lightManager">Click Me</v-btn>
       </template>
 
       <v-card>
@@ -103,6 +103,9 @@
 
 <script>
 export default {
+  props: {
+    deviceId: String
+  },
   data() {
     return {
       showCard: false,
@@ -131,7 +134,7 @@ export default {
       this.waitingTurnOn = true;
       const turnOn = '/turnOn';
       if(this.lightIsOff) {
-        this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + '8e491a7e1a092657' + turnOn)
+        this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + turnOn)
         .then( (response) => {
           if(response.data.result === true) {
             this.lightIsOn = true;
@@ -153,7 +156,7 @@ export default {
       this.waitingTurnOff = true;
       const turnOff = '/turnOff';
       if(this.lightIsOn) {
-        this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + '8e491a7e1a092657' + turnOff)
+        this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + turnOff)
         .then( (response) => {
           if(response.data.result === true) {
             this.lightIsOn = false;
@@ -178,7 +181,7 @@ export default {
       this.waitingForChangeBrightness = true;
       this.waitingForColorChange = true;
       const state = '/state';
-      this.axios.get('http://127.0.0.1:8081/api/' + 'devices/' + '8e491a7e1a092657' + state)
+      this.axios.get('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + state)
       .then( (response) => {
         this.lightColor = response.data.result.color;
         this.lightBrightness = response.data.result.brightness;
@@ -205,7 +208,7 @@ export default {
     changeBrightness() {
       this.waitingForChangeBrightness = true;
       const action = '/setBrightness';
-      this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + '8e491a7e1a092657' + action, [this.brightnessToChange])
+      this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + action, [this.brightnessToChange])
       .then( (response) => {
         if(response.data.result === this.lightBrightness)
           this.lightBrightness = this.brightnessToChange;
@@ -228,7 +231,7 @@ export default {
       this.waitingForColorChange = true;
       const action = '/setColor';
       const RGBcolor = this.lightColor.substring(1, 7);
-      this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + '8e491a7e1a092657' + action, [RGBcolor])
+      this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + action, [RGBcolor])
       .then( () => {
         this.waitingForColorChange = false;
       })
