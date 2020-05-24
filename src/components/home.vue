@@ -3,6 +3,9 @@
         <p v-if="!editing" class="headline">{{homeName}}</p>
         
         <v-text-field v-if="editing" v-model="newName" dense :placeholder=homeName filled/>
+        <v-btn x-small @click="deleteHome" class="red ml-4" fab v-show="editing">
+            <v-icon>{{deleteIcon}}</v-icon>
+        </v-btn>
 
         <v-spacer></v-spacer>
 
@@ -47,6 +50,7 @@ export default {
             editing: false,
             editingText: "Edit",
             arrow: "mdi-arrow-down",
+            deleteIcon: "mdi-delete",
             newName: ""
         }
     },
@@ -66,6 +70,10 @@ export default {
             this.editing = false
             if (this.newName != this.homeName)
                 this.$homeStore.data.renameHome(this.homeId, this.newName)
+        },
+        deleteHome() {
+            this.editing = false
+            this.$homeStore.data.deleteHome(this.homeId)
         }
     }
 }

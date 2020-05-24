@@ -3,6 +3,11 @@
         <p v-if="!editing" class="headline">{{roomName}}</p>
         
         <v-text-field v-if="editing" v-model="newName" dense :placeholder=roomName filled/>
+
+        <v-btn x-small @click="deleteRoom" class="red ml-4" fab v-show="editing">
+            <v-icon>{{deleteIcon}}</v-icon>
+        </v-btn>
+
         <v-spacer></v-spacer>
 
         <v-btn small @click="editPressed" v-show="editing">CANCEL</v-btn>
@@ -48,6 +53,7 @@ export default {
             typeString: "type",
             expand: false,
             arrow: "mdi-arrow-down",
+            deleteIcon: "mdi-delete",
             newName: ""
         }
     },
@@ -71,6 +77,10 @@ export default {
             this.editing = false
             if (this.newName != this.roomName)
                 this.$roomStore.data.renameRoom(this.roomId, this.newName)
+        },
+        deleteRoom() {
+            this.editing = false
+            this.$roomStore.data.deleteRoom(this.roomId)
         }
     }
 }
