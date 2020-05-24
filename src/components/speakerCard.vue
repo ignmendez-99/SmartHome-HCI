@@ -6,7 +6,7 @@
                 <v-btn class="pa-0 ma-0" height="250" depressed block color="transparent transparent--text" v-on="on" @click="speakerManager">Click Me</v-btn>
             </template>
 
-            <v-card min-height="425">
+            <v-card min-height="462">
                 <v-container>
                     <v-card-title class="headline blue lighten-4 pa-3" primary-title>
                         Speaker de Nacho
@@ -35,21 +35,18 @@
                                     <v-icon>mdi-arrow-collapse-right</v-icon>
                                 </v-btn>
                             </v-row>
-                            <v-row justify="center" class="mb-3">
+                            <v-row justify="center" class="mb-3 mt-10">
                                 <v-slider
                                     v-model="volumeNumber"
-                                    label="Volume" 
                                     min="0"
                                     max="10"
+                                    thumb-label="always"
+                                    tick-size="5"
+                                    ticks="always"
                                     @change="setVolume"
+                                    prepend-icon="mdi-volume-minus"
+                                    append-icon="mdi-volume-plus"
                                 ></v-slider>
-                                <!-- <v-btn color="grey lighten-2" @click="volumeDown" :loading="waitingForVolumeDown">
-                                    <v-icon>mdi-volume-minus</v-icon>
-                                </v-btn>
-                                <p class="title mx-4 my-1">{{ this.volumeNumber }}</p>
-                                <v-btn color="grey lighten-2" @click="volumeUp" :loading="waitingForVolumeUp">
-                                    <v-icon>mdi-volume-plus</v-icon>
-                                </v-btn> -->
                             </v-row>
                             <v-row>
                                 <v-col cols="2" class="pb-0">
@@ -57,11 +54,10 @@
                                 </v-col>
                                 <v-col cols="8" class="pb-0">
                                     <v-progress-linear
-                                    v-show="songInDisplay"
-                                    ticks
-                                    v-model="progressBarLoadingNumber"
-                                    color="deep-purple accent-4"
-                                    rounded
+                                        v-show="songInDisplay"
+                                        v-model="progressBarLoadingNumber"
+                                        color="deep-purple accent-4"
+                                        rounded
                                     ></v-progress-linear>
                                 </v-col>
                                 <v-col cols="2" class="pb-0">
@@ -92,9 +88,20 @@
                         </v-container>
                     </v-card>
 
+                    <v-snackbar
+                        :timeout="timeout"
+                        left
+                        bottom
+                        multi-line
+                        v-model="snackbar"
+                        color="error"
+                    >
+                        <strong>{{ errorText }}</strong>
+                        <v-btn @click.native="snackbar = false">Close</v-btn>
+                    </v-snackbar>
+
                 </v-container>
             </v-card>
-      
         </v-dialog>
     </div>
 </template>
@@ -117,12 +124,15 @@ export default {
             songDuration: "",
             songDurationInSeconds: 0,
 
+            timeout: 6000,    /////
+            errorText: "",    // ERROR HANDLING
+            snackbar: false,  /////
+
             waitingForPreviousSong: false,
             waitingForPlaySong: false,
             waitingForPauseSong: false,
             waitingForStopSong: false,
             waitingForNextSong: false,
-            waitingForVolumeChange: false,
 
             genres: ["pop", "rock", "classical", "country", "dance", "latina"],
 
@@ -152,12 +162,19 @@ export default {
                             this.songInDisplay = true;
                         }
                         this.songPlaying = true;
+                        this.startCountOfSeconds();
+                    } else {
+                        this.throwErrorMessage("Could not play song. Try again later.", 6000);
+                        this.waitingForPlaySong = false;
                     }
-                    this.startCountOfSeconds();
                 })
                 .catch( () => {
-                    console.log("No se pudo poner play a la cancion");
+                    this.throwErrorMessage("Could not play song. Try again later.", 6000);
+                    this.waitingForPlaySong = false;
                 })
+            } else {
+                this.throwErrorMessage("Could not play song. Try again later.", 6000);
+                this.waitingForPlaySong = false;
             }
         },
         pauseSong: function() {
@@ -165,14 +182,21 @@ export default {
             const pauseAction = '/pause';
             if(this.songPlaying === true) {
                 this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + pauseAction)
-                .then( () => {
-                    this.songPlaying = false;
-                    clearInterval(this.secondsUpdater);
+                .then( (response) => {
+                    if(response.data.result === true) {
+                        this.songPlaying = false;
+                        clearInterval(this.secondsUpdater);
+                    } else
+                        this.throwErrorMessage("Could not pause song. Try again later.", 6000);
                     this.waitingForPauseSong = false;
                 })
                 .catch( () => {
-                    console.log("No se pudo poner pausa a la cancion");
+                    this.throwErrorMessage("Could not pause song. Try again later.", 6000);
+                    this.waitingForPauseSong = false;
                 })
+            } else {
+                this.throwErrorMessage("Could not pause song. Try again later.", 6000);
+                this.waitingForPauseSong = false;
             }
         },
         stopSong: function() {
@@ -180,46 +204,34 @@ export default {
             const stopAction = '/stop';
             if(this.songInDisplay === true) {
                 this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + stopAction)
-                .then( () => {
-                    this.songPlaying = false;
-                    this.songInDisplay = false;
-                    this.secondsElapsed = 0;
-                    clearInterval(this.secondsUpdater);
-                    this.waitingForStopSong = false;
+                .then( (response) => {
+                    if(response.data.result === true) {
+                        this.songPlaying = false;
+                        this.songInDisplay = false;
+                        this.secondsElapsed = 0;
+                        clearInterval(this.secondsUpdater);
+                        this.waitingForStopSong = false;
+                    } else {
+                        this.throwErrorMessage("Could not stop song. Try again later.", 6000);
+                        this.waitingForStopSong = false;
+                    }
                 })
                 .catch( () => {
-                    console.log("No se pudo parar a la cancion");
+                    this.throwErrorMessage("Could not stop song. Try again later.", 6000);
+                    this.waitingForStopSong = false;
                 })
-            } else
+            } else {
+                this.throwErrorMessage("Could not stop song. Try again later.", 6000);
                 this.waitingForStopSong = false;
+            }
         },
         setVolume: function() {
-            this.waitingForVolumeChange = true;
             const action = '/setVolume';
             this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + action, [this.volumeNumber])
-            .then( () => {
-                this.waitingForVolumeChange = false;
-            })
             .catch( () => {
-                console.log("No se pudo cambiar el volumen");
+                this.throwErrorMessage("Could not set volume. Try again later.", 6000);
             })
         },
-        // volumeDown: function() {
-        //     if(this.volumeNumber > 0) {
-        //         this.waitingForVolumeDown = true;
-        //         this.waitingForVolumeUp = true;
-        //         const aux = this.volumeNumber - 1;
-        //         this.setVolume(aux.toString()); // lo paso en formato String
-        //     }
-        // },
-        // volumeUp: function() {
-        //     if(this.volumeNumber < 10) {
-        //         this.waitingForVolumeDown = true;
-        //         this.waitingForVolumeUp = true;
-        //         const aux = parseInt(this.volumeNumber) + parseInt(1);
-        //         this.setVolume(aux.toString()); // lo paso en formato String
-        //     }
-        // },
         previousSong: function() {
             this.waitingForPreviousSong = true;
             const action = '/previousSong';
@@ -228,11 +240,13 @@ export default {
                 if(response.data.result === true) {
                     this.getStateOfCurrentSong();
                     this.secondsElapsed = 0;
-                    this.waitingForPreviousSong = false;
-                }
+                } else
+                    this.throwErrorMessage("Could not go to previous song. Try again later.", 6000);
+                this.waitingForPreviousSong = false;
             })
             .catch( () => {
-                console.log("No se pudo cambiar a la cancion anterior");
+                this.throwErrorMessage("Could not go to previous song. Try again later.", 6000);
+                this.waitingForPreviousSong = false;
             })
         },
         nextSong: function() {
@@ -243,59 +257,83 @@ export default {
                 if(response.data.result === true) {
                     this.getStateOfCurrentSong();
                     this.secondsElapsed = 0;
-                    this.waitingForNextSong = false;
-                }
+                } else
+                    this.throwErrorMessage("Could not go to next song. Try again later.", 6000);
+                this.waitingForNextSong = false;
             })
             .catch( () => {
-                console.log("No se pudo cambiar a la cancion anterior");
+                this.throwErrorMessage("Could not go to next song. Try again later.", 6000);
+                this.waitingForNextSong = false;
             })
         },
         speakerManager: function() {  // executed each time the SpeakerPopup is opened
             const state = '/state';
+
+            this.waitingForPreviousSong = true;
+            this.waitingForPlaySong = true;
+            this.waitingForPauseSong = true;
+            this.waitingForStopSong = true;
+            this.waitingForNextSong = true;
+
             this.axios.get('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + state)
             .then( (response) => {
-                if(response.data.result.status === 'playing' || response.data.result.status === 'paused') {
-                    this.songInDisplay = true
-                    this.songTitle = response.data.result.song.title;
-                    this.songAlbum = response.data.result.song.album;
-                    this.songArtist = response.data.result.song.artist;
-                    this.songDuration = response.data.result.song.duration;
-                    this.songTimeElapsed = response.data.result.song.progress;
-                    this.volumeNumber = response.data.result.volume;
-                    if(response.data.result.status === 'playing')
-                        this.songPlaying = true;
-                    else
-                        this.songPlaying = false;
-                    
-                    this.secondsElapsed = parseInt( this.songTimeElapsed.charAt(0) * 60 )
-                                            + parseInt( this.songTimeElapsed.charAt(2) * 10 )
-                                            + parseInt( this.songTimeElapsed.charAt(3) );
-                    
-                    this.songDurationInSeconds = parseInt( this.songDuration.charAt(0) * 60 )
-                                            + parseInt( this.songDuration.charAt(2) * 10 )
-                                            + parseInt( this.songDuration.charAt(3) );
-                    
-                    this.updateProgressBar();
+                if(response.data.result.status != "undefined") {
+                    if(response.data.result.status === 'playing' || response.data.result.status === 'paused') {
+                        this.songInDisplay = true
 
-                    if(response.data.result.status === 'playing')
-                        this.startCountOfSeconds();
-                }
+                        this.songTitle = response.data.result.song.title;
+                        this.songAlbum = response.data.result.song.album;
+                        this.songArtist = response.data.result.song.artist;
+                        this.songDuration = response.data.result.song.duration;
+                        this.songTimeElapsed = response.data.result.song.progress;
+                        this.volumeNumber = response.data.result.volume;
+
+                        if(response.data.result.status === 'playing')
+                            this.songPlaying = true;
+                        else
+                            this.songPlaying = false;
+                        
+                        this.secondsElapsed = parseInt( this.songTimeElapsed.charAt(0) * 60 )
+                                                + parseInt( this.songTimeElapsed.charAt(2) * 10 )
+                                                + parseInt( this.songTimeElapsed.charAt(3) );
+                        
+                        this.songDurationInSeconds = parseInt( this.songDuration.charAt(0) * 60 )
+                                                + parseInt( this.songDuration.charAt(2) * 10 )
+                                                + parseInt( this.songDuration.charAt(3) );
+                        
+                        this.updateProgressBar();
+
+                        if(response.data.result.status === 'playing')
+                            this.startCountOfSeconds();
+                    }
+                    this.waitingForPreviousSong = false;
+                    this.waitingForPlaySong = false;
+                    this.waitingForPauseSong = false;
+                    this.waitingForStopSong = false;
+                    this.waitingForNextSong = false;
+                } 
+                else
+                    this.throwErrorMessage("Could not load Device state. Try again later.", 0);
             })
             .catch( () => {
-                console.log("Algo fallo al obtener el estado del parlante");
+                this.throwErrorMessage("Could not load Device state. Try again later.", 0);
             })
         },
         getStateOfCurrentSong: function() {
             this.axios.get('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + '/state')
             .then( (response) => {
-                this.songTitle = response.data.result.song.title;
-                this.songArtist = response.data.result.song.artist;
-                this.songAlbum = response.data.result.song.album;
-                this.songDuration = response.data.result.song.duration;
-                this.songTimeElapsed = response.data.result.song.progress;
+                if(response.data.result.song != "undefined") {
+                    this.songTitle = response.data.result.song.title;
+                    this.songArtist = response.data.result.song.artist;
+                    this.songAlbum = response.data.result.song.album;
+                    this.songDuration = response.data.result.song.duration;
+                    this.songTimeElapsed = response.data.result.song.progress;
+                }
+                else
+                    this.throwErrorMessage("Could not get Device state. Try again later.", 6000);
             })
             .catch( () => {
-                console.log("No se pudo obtener el estado del dispositivo")
+                this.throwErrorMessage("Could not get Device state. Try again later.", 6000);
             })
         },
         startCountOfSeconds: function() {
@@ -305,7 +343,7 @@ export default {
             this.secondsUpdater = window.setInterval( () => {
                 this.secondsElapsed ++ ;
                 this.updateSongTimeElapsed();
-                if(this.secondsElapsed === this.songDurationInSeconds) {
+                if(this.secondsElapsed >= this.songDurationInSeconds) {
                     this.getStateOfCurrentSong();
                     this.secondsElapsed = 0;
                     this.progressBarLoadingNumber = 0;
@@ -334,20 +372,21 @@ export default {
             this.progressBarLoadingNumber = Math.floor( (100 * this.secondsElapsed) / this.songDurationInSeconds );
         },
         changeGenre(selectObj) {
-            console.log(selectObj);
             const action = '/setGenre'
             this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + action, [selectObj])
-            .then( () => {
-                this.getStateOfCurrentSong();
-            })
             .catch( () => {
-                console.log("No se pudo cambiar el genero de musica");
+                this.throwErrorMessage("Could not change music genre. Try again later.", 6000);
             })
         },
         closeCard: function() {
             this.dialog = false;
             clearInterval(this.secondsUpdater)
-        }  
+        },
+        throwErrorMessage(message, duration) {
+            this.snackbar = true;
+            this.errorText = message;
+            this.timeout = duration;
+        }
     }
 }
 </script>
