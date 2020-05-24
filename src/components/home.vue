@@ -2,16 +2,16 @@
     <v-row>
         <p v-if="!editing" class="headline">{{homeName}}</p>
         
-        <v-text-field v-if="editing" v-model="newName" dense :placeholder=homeName filled/>
+        <v-text-field v-if="editing" v-model="newName" dense filled/>
         <v-btn x-small @click="deleteHome" class="red ml-4" fab v-show="editing">
             <v-icon>{{deleteIcon}}</v-icon>
         </v-btn>
 
         <v-spacer></v-spacer>
 
-        <v-btn small @click="editPressed" v-show="editing">CANCEL</v-btn>
-        <v-btn small @click="changeHomeName" v-show="editing">DONE</v-btn>
-        <v-btn small @click="editPressed" v-show="!editing && expand">EDIT</v-btn>
+        <v-btn small @click="cancelPressed" v-show="editing">CANCEL</v-btn>
+        <v-btn small @click="changeHomeName" class="mx-4 blue white--text" v-show="editing">DONE</v-btn>
+        <v-btn small @click="editPressed" class="mr-4" v-show="!editing && expand">EDIT</v-btn>
         <v-btn small @click="expandPressed">
             <v-icon>{{arrow}}</v-icon>
         </v-btn>
@@ -51,12 +51,16 @@ export default {
             editingText: "Edit",
             arrow: "mdi-arrow-down",
             deleteIcon: "mdi-delete",
-            newName: ""
+            newName: this.homeName
         }
     },
     methods: {
         editPressed() {
-            this.editing = !this.editing
+            this.editing = true
+        },
+        cancelPressed() {
+            this.newName = this.homeName
+            this.editing = false
         },
         expandPressed() {
             this.expand = !this.expand
@@ -73,6 +77,7 @@ export default {
         },
         deleteHome() {
             this.editing = false
+            // ACA DEBERIA PREGUNTAR CON UN POPUP O ALGO!!!!!!!!!!!!!
             this.$homeStore.data.deleteHome(this.homeId)
         }
     }

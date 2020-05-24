@@ -20,12 +20,12 @@
         </v-card>
 
         <!-- debería mandarlo solo si es speaker -->
-        <speakerCard v-if="deviceTypeId === 'c89b94e8581855bc'" :deviceId="deviceId" id="overlay"/> 
-        <faucetCard v-if="deviceTypeId === 'dbrlsh7o5sn8ur4i'" :deviceId="deviceId" id="overlay"/> 
-        <lightCard v-if="deviceTypeId === 'go46xmbqeomjrsjr'" :deviceId="deviceId" id="overlay"/> 
-        <doorCard v-if="deviceTypeId === 'lsf78ly0eqrjbz91'" :deviceId="deviceId" id="overlay"/> 
-        <refrigeratorCard v-if="deviceTypeId === 'rnizejqr2di0okho'" :deviceId="deviceId" id="overlay"/> 
-        <blindsCard v-if="deviceTypeId === 'eu0v2xgprrhhg41g'" :deviceId="deviceId" id="overlay"/> 
+        <speakerCard v-if="deviceTypeId === 'c89b94e8581855bc'" :deviceId="deviceId" :deviceName="deviceName" id="overlay"/> 
+        <faucetCard v-if="deviceTypeId === 'dbrlsh7o5sn8ur4i'" :deviceId="deviceId" :deviceName="deviceName" id="overlay"/> 
+        <lightCard v-if="deviceTypeId === 'go46xmbqeomjrsjr'" :deviceId="deviceId" :deviceName="deviceName" id="overlay"/> 
+        <doorCard v-if="deviceTypeId === 'lsf78ly0eqrjbz91'" :deviceId="deviceId" :deviceName="deviceName" id="overlay"/> 
+        <refrigeratorCard v-if="deviceTypeId === 'rnizejqr2di0okho'" :deviceId="deviceId" :deviceName="deviceName" id="overlay"/> 
+        <blindsCard v-if="deviceTypeId === 'eu0v2xgprrhhg41g'" :deviceId="deviceId" :deviceName="deviceName" id="overlay"/> 
 
 
 
@@ -162,7 +162,7 @@ export default {
         this.getStateAndIcon();
         this.repeater = window.setInterval( () => {
             this.getStateAndIcon();
-        }, 5000)
+        }, 3000)
     }
     
 }

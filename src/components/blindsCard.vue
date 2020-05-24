@@ -9,7 +9,10 @@
             <v-card min-height="400">
                 <v-container>
                     <v-card-title class="headline blue lighten-4 pa-3" primary-title>
-                        Cortina de Nacho
+                        <template v-if="!editing">
+                            {{deviceName}}
+                        </template>
+                        <v-text-field v-if="editing" v-model="newName" dense filled/>
                         <v-spacer></v-spacer>
                         <v-btn color="blue lighten-1" small @click="closeBlindsCard">
                             <v-icon>mdi-close</v-icon>
@@ -58,6 +61,15 @@
                                     </template>
                                 </v-slider>
                             </v-row>
+
+                            <v-row justify="center">
+                                <v-btn x-small @click="deleteDevice" class="red" fab v-show="editing">
+                                    <v-icon>{{deleteIcon}}</v-icon>
+                                </v-btn>
+                                <v-btn small @click="cancelPressed" class="mx-4" v-show="editing">CANCEL</v-btn>
+                                <v-btn small @click="changeDeviceName" class="blue white--text" v-show="editing">DONE</v-btn>
+                                <v-btn small @click="editPressed" v-show="!editing">EDIT</v-btn>
+                            </v-row>
                         </v-container>
                     </v-card-actions>
 
@@ -81,6 +93,10 @@
 
 <script>
 export default {
+    props: {
+        deviceId: String,
+        deviceName: String
+    },
     data() {
         return {
             showCard: false,
@@ -91,6 +107,11 @@ export default {
             timeout: 6000,    /////
             errorText: "",    // ERROR HANDLING
             snackbar: false,  /////
+
+            editing: false,
+            deleteIcon: "mdi-delete",
+            newName: this.deviceName,
+
 
             opening: false,
             closing: false,
@@ -105,15 +126,16 @@ export default {
     },
     methods: {
         closeBlindsCard() {
-            this.showCard = false;
-            clearInterval(this.secondsUpdater);
+            this.showCard = false
+            this.editing = false
+            clearInterval(this.secondsUpdater)
         },
         blindsManager() {
             const state = '/state';
             this.waitingForCloseConfirmation = true;
             this.waitingForOpenConfirmation = true;
             this.waitingForSetLevelConfirmation = true; 
-            this.axios.get('http://127.0.0.1:8081/api/' + 'devices/' + '809a7de0ee0a2a6b' + state)
+            this.axios.get('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + state)
             .then( (response) => {
                 if(response.data.result.level != "undefined") {
                     this.levelOfObscurity = response.data.result.level;
@@ -149,7 +171,7 @@ export default {
         startIntervalTimer() {
             this.fullyOpenedOrClosed = false;
             this.secondsUpdater = window.setInterval( () => {
-                this.axios.get('http://127.0.0.1:8081/api/' + 'devices/' + '809a7de0ee0a2a6b' + '/state')
+                this.axios.get('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + '/state')
                 .then( (response) => {
                     if(response.data.result.level != "undefined") {
                         this.levelOfObscurity = response.data.result.level;
@@ -185,7 +207,7 @@ export default {
         },
         getCurrentState() {
             const state = '/state';
-            this.axios.get('http://127.0.0.1:8081/api/' + 'devices/' + '809a7de0ee0a2a6b' + state)
+            this.axios.get('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + state)
             .then( (response) => {
                 if(response.data.result.level != "undefined") {
                     this.levelOfObscurity = response.data.result.level;
@@ -216,7 +238,7 @@ export default {
         openBlinds() {
             this.waitingForOpenConfirmation = true;
             const open = '/open';
-            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + '809a7de0ee0a2a6b' + open)
+            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + open)
             .then( (response) => {
                 if(response.data.result === true) {
                     this.opening = true;
@@ -238,7 +260,7 @@ export default {
         closeBlinds() {
             this.waitingForCloseConfirmation = true;
             const close = '/close';
-            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + '809a7de0ee0a2a6b' + close)
+            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + close)
             .then( (response) => {
                 if(response.data.result === true) {
                     this.opening = false;
@@ -260,7 +282,7 @@ export default {
         },
         changeObscurityLevel(selectObj) {
             const setLevel = '/setLevel';
-            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + '809a7de0ee0a2a6b' + setLevel, [selectObj])
+            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + setLevel, [selectObj])
             .then( () => {
                 this.getCurrentState();
             })
@@ -283,6 +305,23 @@ export default {
             this.snackbar = true;
             this.errorText = message;
             this.timeout = duration;
+        },
+        changeDeviceName() {
+            this.editing = false
+            if (this.newName != this.deviceName)
+                this.$deviceStore.data.renameDevice(this.deviceId, this.newName)
+        },
+        deleteDevice() {
+            this.editing = false
+            // ACA DEBERIA PREGUNTAR CON UN POPUP O ALGO!!!!!!!!!!!!!
+            this.$deviceStore.data.deleteDevice(this.deviceId)
+        },
+        editPressed() {
+            this.editing = true
+        },
+        cancelPressed() {
+            this.newName = this.deviceName
+            this.editing = false
         }
     }
 }
