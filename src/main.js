@@ -259,9 +259,29 @@ const deviceStore = Vue.observable({
   }
 })
 
+const actionStore = Vue.observable({
+  data: {
+    actionsByDeviceType: new Map(),
+
+    deviceTypes: ["c89b94e8581855bc", "dbrlsh7o5sn8ur4i", "eu0v2xgprrhhg41g", "go46xmbqeomjrsjr", "lsf78ly0eqrjbz91", "ofglvd9gqx8yfl3l", "rnizejqr2di0okho"],
+      // speaker faucet blinds lamps door vacuum refrigerator
+    getAllActions() {
+      this.actionsByDeviceType.set("c89b94e8581855bc", ["play", "pause", "stop", "resume"])
+      this.actionsByDeviceType.set("dbrlsh7o5sn8ur4i", ["open", "close"])
+      this.actionsByDeviceType.set("eu0v2xgprrhhg41g", ["open", "close"])
+      this.actionsByDeviceType.set("go46xmbqeomjrsjr", ["turnOn", "turnOff"])
+      this.actionsByDeviceType.set("lsf78ly0eqrjbz91", ["open", "close", "lock", "unlock"])
+      this.actionsByDeviceType.set("ofglvd9gqx8yfl3l", ["start", "pause", "dock"])
+      // this.actionsByDeviceType.set("rnizejqr2di0okho", ["setFreezerTemperature", "setTemperature", "setMode"])
+    }
+  }
+})
+
 Vue.prototype.$homeStore = homeStore
 Vue.prototype.$roomStore = roomStore
 Vue.prototype.$deviceStore = deviceStore
+Vue.prototype.$actionStore = actionStore
+Vue.prototype.$genericUrl = genericUrl
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -270,29 +290,24 @@ function sleep(ms) {
 async function getAll() {
   homeStore.data.getAllHomes()
   console.log("TRAJO LAS HOMES")
-  // await sleep(2000);
-  // console.log(homeStore.data.homes)
-  
   
   roomStore.data.getAllRooms()
   console.log("TRAJO LAS ROOMS")
-  // await sleep(2000);
-  // console.log(roomStore.data.rooms)
   
   deviceStore.data.getAllDevices()
   console.log("TRAJO LOS DEVICES")
   await sleep(2000);
-  // console.log(deviceStore.data.devices)
 
   roomStore.data.divideRoomsByHome()
   console.log("LINKEO LAS ROOMS CON LAS HOMES")
-  await sleep(2000);
-  // console.log(roomStore.data.roomsByHome)
+  // await sleep(2000);
   
   deviceStore.data.divideDevicesByRoom()
   console.log("LINKEO LOS DEVICES CON LAS ROOMS")
-  // await sleep(2000);
-  // console.log(deviceStore.data.devicesByRoom)
+
+  actionStore.data.getAllActions()
+  console.log("CONSIGUIO LAS ACCIONES POSIBLES PARA RUTINAS")
+
 }
 
 getAll()

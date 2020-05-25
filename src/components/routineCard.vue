@@ -17,13 +17,12 @@
 
                 <v-card-actions>
                     <v-container>
-
                         <template>
                             <v-stepper :value=currentStep>
                             <v-stepper-header>
                                 <v-stepper-step step="1">Step 1: Select Devices</v-stepper-step>
                                 <v-divider></v-divider>
-                                <v-stepper-step step="2">Step 2: Select Action</v-stepper-step>
+                                <v-stepper-step step="2">Step 2: Select Actions</v-stepper-step>
                                 <v-divider></v-divider>
                                 <v-stepper-step step="3">Step 3: Choose Name</v-stepper-step>
                             </v-stepper-header>
@@ -45,43 +44,41 @@
                             <p class="title" v-show="currentStep === 2">Select the actions that this routine will execute</p>
                             <p class="title" v-show="currentStep === 3">Select a name for your routine</p>
                         </v-row>
+                        
+                        <!-- only shown in STEP 1 -->
                         <v-row align="center" justify="center" v-show="currentStep === 1">
-                            <v-col cols="3"></v-col>
-                            <v-col cols="6">
-                                <v-select
-                                    :items="myDevicesNames"
-                                    label="Your Devices"
-                                    chips
-                                    multiple
-                                    attach
-                                    @change="addDeviceToRoutine"
-                                ></v-select>
-                            </v-col>
-                            <v-col cols="3">
-                                <v-btn
-                                    @click="goToStepTwo" 
-                                    color="blue lighten-1 white--text" 
-                                    :loading="waitingForStepOneConfirmation"
-                                >NEXT</v-btn>
-                            </v-col>
+                                <v-checkbox 
+                                    class="mx-6" v-model="selectedDevices" 
+                                    v-for="device in $deviceStore.data.devices" :key="device" 
+                                    :label="device.name" :value="device"></v-checkbox>
                         </v-row>
+
+                        <!-- only shown in STEP 1 -->
+                        <v-row class="mt-12" align="center" justify="center" v-show="currentStep === 1">
+                            <v-btn 
+                                @click="currentStep = 2" color="blue lighten-1 white--text" 
+                                :loading="waitingForStepOneConfirmation"
+                            >NEXT</v-btn>
+                        </v-row>
+
+                        
+                        <!-- only shown in STEP 2 -->
                         <v-row align="center" justify="center" v-show="currentStep === 2">
-                            <v-col cols="3"></v-col>
+                            <!-- <v-col cols="3"></v-col>
                             <div v-for="(deviceName) in devicesNamesSelected" v-bind:key="deviceName">
                                 <v-container>
                                     <v-row>
                                         Select action for {{deviceName}}
-
-                                        <!-- HABIA INTENTADO AGREGAR ESTO:
-                                        :items="myDevicesSelected[index].actions.name" -->
-                                        <v-select
-                                            label="Select action"
-                                            
-                                        ></v-select>
+                                        <v-select label="Select action"></v-select>
                                     </v-row>
                                 </v-container>
-                                
-                            </div>
+                            </div> -->
+                            <v-select 
+                                v-for="device in selectedDevices" 
+                                :key="device" 
+                                :label="selectText + device.name"
+                                :items="$actionStore.data.actionsByDeviceType.get(device.type.id)"
+                            ></v-select>
                         </v-row>
                     </v-container>
                 </v-card-actions>
@@ -96,20 +93,14 @@ export default {
     data() {
         return {
             showCard: false,
-            routinesToExecute: [],
+            selectedDevices: [],
+            selectText: "Actions for ",
 
             currentStep: 1,
 
             waitingForStepOneConfirmation: false,
             waitingForStepTwoConfirmation: false,
             waitingForStepThreeConfirmation: false,
-
-
-            myDevices: [],
-            myDevicesSelected: [],
-            deviceTypes: [],
-            myDevicesNames: [],
-            devicesNamesSelected: [],
 
         }
     },
@@ -149,28 +140,27 @@ export default {
                 })
             }
         },
-        goToStepTwo() {
-            this.axios.get('http://127.0.0.1:8081/api/' + 'devicetypes')
-            .then( (response) => {
-                response.data.result.forEach( (deviceType) => {
-                    this.deviceTypes.push(deviceType);
-                });
+        // goToStepTwo() {
+        //     // this.axios.get('http://127.0.0.1:8081/api/' + 'devicetypes')
+        //     // .then( (response) => {
+        //     //     response.data.result.forEach( (deviceType) => {
+        //     //         this.deviceTypes.push(deviceType);
+        //     //     });
 
-                
-                this.myDevicesSelected.forEach( (deviceSelected, index) => {
-                    this.deviceTypes.some( (deviceType) => {
-                        if(deviceType.id === deviceSelected.type.id) {
-                            deviceType.actions.forEach( (action) => {
-                                this.myDevicesSelected[index].actions.push(action);
-                            })
-                            return true;
-                        }
-                    })
-                })
+        //     //     this.myDevicesSelected.forEach( (deviceSelected, index) => {
+        //     //         this.deviceTypes.some( (deviceType) => {
+        //     //             if(deviceType.id === deviceSelected.type.id) {
+        //     //                 deviceType.actions.forEach( (action) => {
+        //     //                     this.myDevicesSelected[index].actions.push(action);
+        //     //                 })
+        //     //                 return true;
+        //     //             }
+        //     //         })
+        //     //     })
 
-                this.currentStep = 2;
-            })
-        },
+        //         // this.currentStep = 2;
+        //     })
+        // },
         goBack() {
             if(this.currentStep === 2)
                 this.currentStep = 1;
