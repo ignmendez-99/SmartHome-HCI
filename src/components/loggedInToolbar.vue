@@ -1,7 +1,11 @@
 <template>
   <nav>
     <v-app-bar app short color="light-blue darken-1 white--text">
-      <v-toolbar-title>UltraHome</v-toolbar-title>
+      <v-toolbar-title>
+        <router-link to="/" style="text-decoration: none; color: inherit;">
+          <v-btn depressed color="light-blue darken-1 white--text">UltraHome</v-btn>
+        </router-link>
+      </v-toolbar-title>
       <v-spacer></v-spacer>
 
       <v-dialog scrollable max-width="400px">
