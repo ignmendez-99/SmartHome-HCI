@@ -108,9 +108,9 @@
                     All set up! Now you can start controlling your devices.
                 </v-col>
                 <v-col align="center" cols="12">
-                    <v-btn color="light-blue darken-1 white--text">
-                        Start
-                    </v-btn>
+                    <router-link to="/devices" style="text-decoration: none; color: inherit;">
+                        <v-btn color="light-blue darken-1 white--text">Start</v-btn>
+                    </router-link>
                 </v-col>
             </v-row>
         </v-container>
