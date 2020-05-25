@@ -26,6 +26,7 @@
         <doorCard v-if="deviceTypeId === 'lsf78ly0eqrjbz91'" :deviceId="deviceId" :deviceName="deviceName" id="overlay"/> 
         <refrigeratorCard v-if="deviceTypeId === 'rnizejqr2di0okho'" :deviceId="deviceId" :deviceName="deviceName" id="overlay"/> 
         <blindsCard v-if="deviceTypeId === 'eu0v2xgprrhhg41g'" :deviceId="deviceId" :deviceName="deviceName" id="overlay"/> 
+        <vacuumCard v-if="deviceTypeId === 'ofglvd9gqx8yfl3l'" :deviceId="deviceId" :deviceName="deviceName" id="overlay"/> 
 
 
 
@@ -46,6 +47,7 @@ import lightCard from "./lightCard"
 import doorCard from "./doorCard"
 import refrigeratorCard from "./refrigeratorCard"
 import blindsCard from "./blindsCard"
+import vacuumCard from "./vacuumCard"
 
 export default {
     props: {
@@ -59,7 +61,8 @@ export default {
         'lightCard': lightCard,
         'doorCard': doorCard,
         'refrigeratorCard': refrigeratorCard,
-        'blindsCard': blindsCard
+        'blindsCard': blindsCard,
+        'vacuumCard': vacuumCard
     },
     data() {
         return{
@@ -163,6 +166,9 @@ export default {
         this.repeater = window.setInterval( () => {
             this.getStateAndIcon();
         }, 3000)
+    },
+    beforeDestroy() {
+        clearInterval(this.repeater)
     }
     
 }

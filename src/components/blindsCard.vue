@@ -63,9 +63,7 @@
                             </v-row>
 
                             <v-row justify="center">
-                                <v-btn x-small @click="deleteDevice" class="red" fab v-show="editing">
-                                    <v-icon>{{deleteIcon}}</v-icon>
-                                </v-btn>
+                                <deleteObject v-show="editing" :id="deviceId" :name="deviceName" :type="device"/>
                                 <v-btn small @click="cancelPressed" class="mx-4" v-show="editing">CANCEL</v-btn>
                                 <v-btn small @click="changeDeviceName" class="blue white--text" v-show="editing">DONE</v-btn>
                                 <v-btn small @click="editPressed" v-show="!editing">EDIT</v-btn>
@@ -92,13 +90,20 @@
 </template>
 
 <script>
+
+import deleteObject from './deleteObject'
+
 export default {
     props: {
         deviceId: String,
         deviceName: String
     },
+    components: {
+        'deleteObject': deleteObject
+    },
     data() {
         return {
+            device: "device",
             showCard: false,
             levelOfObscurity: 0,  // [0-100]
             currentLevel: 0,  // [0-100]
@@ -109,7 +114,6 @@ export default {
             snackbar: false,  /////
 
             editing: false,
-            deleteIcon: "mdi-delete",
             newName: this.deviceName,
 
 
@@ -310,11 +314,6 @@ export default {
             this.editing = false
             if (this.newName != this.deviceName)
                 this.$deviceStore.data.renameDevice(this.deviceId, this.newName)
-        },
-        deleteDevice() {
-            this.editing = false
-            // ACA DEBERIA PREGUNTAR CON UN POPUP O ALGO!!!!!!!!!!!!!
-            this.$deviceStore.data.deleteDevice(this.deviceId)
         },
         editPressed() {
             this.editing = true
