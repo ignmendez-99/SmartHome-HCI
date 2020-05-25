@@ -119,7 +119,7 @@ const roomStore = Vue.observable({
               } else {
                 aux = roomStore.data.roomsByHome.get(homeId)
               }
-              aux.push(response.data.result)
+              aux.push(response.daata.result)
               roomStore.data.roomsByHome.set(homeId, aux)
               console.log("SUCCESS")
             })
@@ -277,10 +277,56 @@ const actionStore = Vue.observable({
   }
 })
 
+const routineStore = Vue.observable({
+  data: {
+    routines: [],
+
+    addRoutine (name, id) {
+      this.routines.push({name: name, id: id})
+    },
+
+    executeRoutine (id) {
+      axios.put(genericUrl + "routines/" + id + "/execute", {})
+      .then( () => {
+        console.log("ROUTINE " + id + " EXECUTED")
+      })
+      .catch( () => {
+          console.log("FAILED TO EXECUTE RUTINE" + id)
+      })
+    },
+
+    getAllRoutines () {
+      this.routines = []
+      axios.get(genericUrl + "routines")
+      .then( (response) => {
+        for (var i = 0; i < response.data.result.length; i++) {
+          this.routines.push({name: response.data.result[i].name, id: response.data.result[i].id})
+        }
+      })
+      .catch( () => {
+        console.log("FAILED TO GET ALL RUTINES")
+      })
+    },
+
+    deleteRoutine(id) {
+      axios.delete(genericUrl + "routines/" + id)
+      .then( () => {
+        this.getAllRoutines()
+      })
+      .catch( () =>{
+        console.log("FAILED TO DELETE ROUTINE " + id)
+      })
+    }
+  }
+})
+
+
+
 Vue.prototype.$homeStore = homeStore
 Vue.prototype.$roomStore = roomStore
 Vue.prototype.$deviceStore = deviceStore
 Vue.prototype.$actionStore = actionStore
+Vue.prototype.$routineStore = routineStore
 Vue.prototype.$genericUrl = genericUrl
 
 function sleep(ms) {
@@ -308,9 +354,13 @@ async function getAll() {
   actionStore.data.getAllActions()
   console.log("CONSIGUIO LAS ACCIONES POSIBLES PARA RUTINAS")
 
+  routineStore.data.getAllRoutines()
+  console.log("TRAJO TODAS LAS ROUTINES")
+
 }
 
 getAll()
+
 
 //////////////////////////////////////
 

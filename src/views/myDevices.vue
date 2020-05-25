@@ -8,7 +8,7 @@
                             <v-col cols="1"></v-col>
 
                             <v-col align="center">
-                                <p class="pa-0 ma-0 headline">Quick actions / Routines</p>
+                                <p class="pa-0 ma-0 headline">Routines</p>
                             </v-col>
 
                             <v-col cols="2">
@@ -22,23 +22,10 @@
                     <div id="quick_actions">
                         <v-container>
                             <v-row align="center">
-                                <routine v-for="routine in routines" :key="routine" :name="routine"/>
+                                <routine v-for="routine in $routineStore.data.routines" :key="routine" :name="routine.name" :id="routine.id"/>
                                 <v-col cols="1"/>
-                                <v-col v-show="editingRoutines">
-                                    <v-card>
-                                        <v-container>
-                                            <v-row align="center">
-                                                <v-col align="center" color="blue lighten-3" class="pt-0 mt-0">
-                                                    <div class="blue darken-1 pa-0 ma-0">
-                                                        <v-icon size="60" class="pa-1 ma-1 white--text">mdi-plus</v-icon>
-                                                    </div>
-                                                </v-col>
-                                                <v-col cols="12" align="center" class="pa-0 ma-0">
-                                                    <p class="ma-0 pa-0 title">Add</p>
-                                                </v-col>
-                                            </v-row>
-                                        </v-container>
-                                    </v-card>
+                                <v-col align="center" justify="center">
+                                    <routineAddCard/>
                                 </v-col>
                                 <v-col cols="1"/>
                             </v-row>
@@ -56,8 +43,6 @@
                 </v-col>
             </v-row>
         </v-container>
-
-        <v-btn @click=test>TEST</v-btn>
 
         <v-snackbar v-model="snackbar">
             {{objectDeleted}} deleted.
@@ -87,13 +72,15 @@
     import routine from "../components/routine.vue"
     import home from "../components/home.vue"
     import addHome from "../components/addHome.vue"
-    import eventBus from '../eventBus';
+    import eventBus from '../eventBus'
+    import routineAddCard from '../components/routineAddCard'
 
     export default {
         components: {
             'routine': routine,
             'home': home,
-            'addHome': addHome
+            'addHome': addHome,
+            'routineAddCard': routineAddCard
         },
         data() {
             return{
@@ -101,12 +88,12 @@
                 name: "name",
                 id: "id",
                 prueba: "CHAU",
-                routines: ["hola", "chau", "que tal", "todo bien", "FRANCO NAVARRO"],
                 expand: false,
                 editingRoutines: false,
                 routinesEditButtonText: "Edit",
                 snackbar: false,
-                objectDeleted: ""
+                objectDeleted: "",
+                routineUpdater: 0
             }
         },
         methods: {
@@ -116,9 +103,6 @@
                     this.routinesEditButtonText = "Done"
                 else
                     this.routinesEditButtonText = "Edit"
-            },
-            test() {
-                this.snackbar = true
             }
         },
         mounted () {
@@ -126,6 +110,11 @@
                 this.objectDeleted = objectName
                 this.snackbar = true
                 console.log("se borro " + this.objectDeleted + ": " + this.snackbar)
+            });
+
+            eventBus.$on("routineAdded", function (updatedString) {
+                this.$routineStore.data.getAllRoutines()
+                console.log(updatedString)
             });
         }
     }
