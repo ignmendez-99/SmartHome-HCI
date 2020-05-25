@@ -30,7 +30,17 @@
                             </v-stepper>
                         </template>
 
-                        <v-row align="center" justify="center" class="mt-7">
+                        <v-row align="start" justify="start" class="mt-2">
+                            <v-btn 
+                            color="blue lighten-1" 
+                            v-show="currentStep != 1 && currentStep != 4" 
+                            @click="goBack"
+                            >
+                                <v-icon color="white">mdi-arrow-left</v-icon>
+                            </v-btn>
+                        </v-row>
+
+                        <v-row align="center" justify="center">
                             <p class="title" v-show="currentStep === 1">Select your devices that will be added to the Routine</p>
                             <p class="title" v-show="currentStep === 2">Select the actions that this routine will execute</p>
                             <p class="title" v-show="currentStep === 3">Select a name for your routine</p>
@@ -41,7 +51,6 @@
                                 <v-select
                                     :items="myDevicesNames"
                                     label="Your Devices"
-                                    v-show="currentStep === 1"
                                     chips
                                     multiple
                                     attach
@@ -58,11 +67,17 @@
                         </v-row>
                         <v-row align="center" justify="center" v-show="currentStep === 2">
                             <v-col cols="3"></v-col>
-                            <div v-for="deviceName in devicesNamesSelected" v-bind:key="deviceName">
+                            <div v-for="(deviceName) in devicesNamesSelected" v-bind:key="deviceName">
                                 <v-container>
                                     <v-row>
                                         Select action for {{deviceName}}
-                                        
+
+                                        <!-- HABIA INTENTADO AGREGAR ESTO:
+                                        :items="myDevicesSelected[index].actions.name" -->
+                                        <v-select
+                                            label="Select action"
+                                            
+                                        ></v-select>
                                     </v-row>
                                 </v-container>
                                 
@@ -91,7 +106,9 @@ export default {
 
 
             myDevices: [],
+            myDevicesSelected: [],
             deviceTypes: [],
+            myDevicesNames: [],
             devicesNamesSelected: [],
 
         }
@@ -100,7 +117,6 @@ export default {
         routineManager() {
             this.showCard = true;
             this.axios.get('http://127.0.0.1:8081/api/' + 'devices')
-
             .then( (response) => {
                 this.myDevices = response.data.result;
                 this.myDevices.forEach( (device) => {
@@ -115,7 +131,23 @@ export default {
             this.showCard = false;
         },
         addDeviceToRoutine(selectObj) {
-            this.devicesNamesSelected.push(selectObj);
+            let size = this.devicesNamesSelected.length;
+            if(size == 0 || this.devicesNamesSelected.find( (element) => element === selectObj)) {
+                console.log("Estoy en el primero");
+                console.log("Size = " + size);
+                this.devicesNamesSelected.push(selectObj);
+                this.myDevices.forEach( (device) => {
+                    if(device.name === selectObj)
+                        this.myDevicesSelected.push(device);
+                })
+            } else {
+                console.log("Estoy en el segundo");
+                this.devicesNamesSelected.pop(selectObj);
+                this.myDevices.forEach( (device) => {
+                    if(device.name === selectObj)
+                        this.myDevicesSelected.pop(device);
+                })
+            }
         },
         goToStepTwo() {
             this.axios.get('http://127.0.0.1:8081/api/' + 'devicetypes')
@@ -123,8 +155,27 @@ export default {
                 response.data.result.forEach( (deviceType) => {
                     this.deviceTypes.push(deviceType);
                 });
+
+                
+                this.myDevicesSelected.forEach( (deviceSelected, index) => {
+                    this.deviceTypes.some( (deviceType) => {
+                        if(deviceType.id === deviceSelected.type.id) {
+                            deviceType.actions.forEach( (action) => {
+                                this.myDevicesSelected[index].actions.push(action);
+                            })
+                            return true;
+                        }
+                    })
+                })
+
                 this.currentStep = 2;
             })
+        },
+        goBack() {
+            if(this.currentStep === 2)
+                this.currentStep = 1;
+            else if(this.currentStep === 3)
+                this.currentStep = 2;
         }
     }
 }
