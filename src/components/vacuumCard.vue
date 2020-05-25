@@ -3,19 +3,16 @@
         <v-dialog v-model="showCard" width="500">
 
             <template v-slot:activator="{ on }">
-                <v-btn color="red lighten-2"  dark  v-on="on" @click="vacuumManager">Click Me</v-btn>
+                <v-btn class="pa-0 ma-0" height="250" depressed block color="transparent transparent--text" v-on="on" @click="vacuumManager">Click Me</v-btn>
             </template>
 
             <v-card>
                 <v-container>
                     <v-card-title class="headline blue lighten-4 pa-3" primary-title>
-                        <div v-if="editing">
-                            <v-text-field
-                                v-model="newDeviceName"
-                                maxlength="30"
-                            ></v-text-field>
-                        </div>
-                        <div v-else>{{deviceName}}</div>
+                        <template v-if="!editing">
+                            {{deviceName}}
+                        </template>
+                        <v-text-field v-if="editing" v-model="newName" dense counter maxlength="25" filled/>
                         <v-spacer></v-spacer>
 
                         <v-btn color="blue lighten-1" small @click="closeVacuumCard">
@@ -61,7 +58,7 @@
                                     <v-select
                                         v-model="currentMode"
                                         :items="modes"
-                                        label="Seleccionar nuevo modo"
+                                        label="Select mode"
                                         dense
                                         @change="setMode"
                                     ></v-select>
@@ -88,7 +85,7 @@
                                         :items="rooms"
                                         item-text="name"
                                         item-value="id"
-                                        label="Seleccionar nueva room"
+                                        label="Select room"
                                         dense
                                         @change="setLocation"
                                     ></v-select>
@@ -101,9 +98,11 @@
 
                             <v-container></v-container>
 
-                            <v-row align="center" justify="center">
-                                <v-btn class="mr-6" small color="red" v-show="editing">Delete</v-btn>
-                                <v-btn class="mr-6" small @click="editPressed">{{buttonText}}</v-btn>
+                            <v-row justify="center">
+                                <deleteObject v-show="editing" :id="deviceId" :name="deviceName" :type="device"/>
+                                <v-btn small @click="cancelPressed" class="mx-4" v-show="editing">CANCEL</v-btn>
+                                <v-btn small @click="changeDeviceName" class="blue white--text" v-show="editing">DONE</v-btn>
+                                <v-btn small @click="editPressed" v-show="!editing">EDIT</v-btn>
                             </v-row>
                         </v-container>
                     </v-card-actions>
@@ -116,14 +115,22 @@
 
 
 <script>
+import deleteObject from './deleteObject'
+
 export default {
+    props: {
+        deviceId: String,
+        deviceName: String
+    },
+    components: {
+        'deleteObject': deleteObject
+    },
     data() {
         return {
             showCard: false,
+            home: "",
+            device: "device",
 
-            deviceName: "aspiradora de franco",
-            newDeviceName: "",
-            
             waitingForStartConfirmation: false,
             waitingForPauseConfirmation: false,
             waitingForDockConfirmation: false,
@@ -135,6 +142,8 @@ export default {
             currentBatteryLevel: "",
             currentLocation: "",
 
+            editing: false,
+            newName: this.deviceName,
 
             rooms: [],
 
@@ -148,47 +157,45 @@ export default {
 
             secondsUpdater: 0,
 
-            editing: false,
-            buttonText:"Edit",
-        
+
         }
     },
     methods: {
+        changeDeviceName() {
+            this.editing = false
+            if (this.newName != this.deviceName)
+                this.$deviceStore.data.renameDevice(this.deviceId, this.newName)
+        },
         editPressed() {
-            this.editing = !this.editing
-            if(this.buttonText === "Edit"){
-                this.buttonText = "Done"
-            }else{
-                if(this.deviceName != this.newDeviceName){
-                    if(this.newDeviceName != ""){
-                        this.deviceName=this.newDeviceName
-                    }
-                }
-                this.buttonText = "Edit"
-            }
+            this.editing = true
+        },
+        cancelPressed() {
+            this.newName = this.deviceName
+            this.editing = false
         },
         
         closeVacuumCard(){
             this.showCard = false;
+            this.editing = false
             clearInterval(this.secondsUpdater)
             if(this.editing === true)
                 this.editing = false;
         },
         getCurrentState() {
             const state = '/state';
-            this.axios.get('http://127.0.0.1:8081/api/' + 'devices/' + 'dd6f02f652ebd1a2' + state)
+            this.axios.get('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + state)
             .then( (response) => {
                 this.currentState = response.data.result.status;
                 this.currentMode = response.data.result.mode;
                 this.currentBatteryLevel = response.data.result.batteryLevel;
-                this.currentLocation = response.data.result.location.name;
+                if(response.data.result.location === null)
+                    this.currentLocation="not set yet"
+                else
+                    this.currentLocation = response.data.result.location.name;
                  if(this.currentBatteryLevel <=5 ){
                     this.readyToUse=false;
                 }else{
                     this.readyToUse=true;
-                }
-                if(this.currentLocation===null){
-                    this.currentLocation="Location not set yet"
                 }
                 if(this.currentState === 'active'){
                     this.on=true;
@@ -213,51 +220,61 @@ export default {
             this.waitingForDockConfirmation=true;
             this.waitingForSetLocationConfirmation= true;
             this.waitingForSetModeConfirmation= true;
-            this.rooms=this.$roomStore.data.roomsByHome.get('cf53bf84370f88e7');
-            this.axios.get('http://127.0.0.1:8081/api/' + 'devices/' + 'dd6f02f652ebd1a2' + state)
+            this.axios.get('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId)
             .then( (response) => {
-                this.currentState = response.data.result.status;
-                this.currentMode = response.data.result.mode;
-                this.currentBatteryLevel = response.data.result.batteryLevel;
-                this.currentLocation = response.data.result.location.name;
-                if(this.currentBatteryLevel <=5 ){
-                    this.readyToUse=false;
-                }else{
-                    this.readyToUse=true;
-                }
-                if(this.currentLocation===null){
-                    this.currentLocation="Location not set yet"
-                }
-                if(this.currentState === 'active'){
-                    this.on=true;
-                    this.off=false;
-                    this.docking=false;
-                    this.startRefreshingInterval();
-                }else if(this.currentState === 'inactive'){
-                    this.on=false;
-                    this.off=true;
-                    this.docking=false;
-                }
-                else if(this.currentState === 'docked'){
-                    this.on=false;
-                    this.off=false;
-                    this.docking=true;
-                    this.startRefreshingInterval();
-                }
-            this.waitingForStartConfirmation=false;
-            this.waitingForPauseConfirmation=false;
-            this.waitingForDockConfirmation=false;
-            this.waitingForSetLocationConfirmation=false;
-            this.waitingForSetModeConfirmation=false;
+                this.home = response.data.result.room.home.id
+                this.rooms=this.$roomStore.data.roomsByHome.get(this.home);
+
+                this.axios.get('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + state)
+                .then( (response) => {
+                    this.currentState = response.data.result.status;
+                    this.currentMode = response.data.result.mode;
+                    this.currentBatteryLevel = response.data.result.batteryLevel;
+                    if(response.data.result.location === null)
+                        this.currentLocation="not set yet"
+                    else
+                        this.currentLocation = response.data.result.location.name;
+                    if(this.currentBatteryLevel <=5 ){
+                        this.readyToUse=false;
+                    }else{
+                        this.readyToUse=true;
+                    }
+                    if(this.currentState === 'active'){
+                        this.on=true;
+                        this.off=false;
+                        this.docking=false;
+                        this.startRefreshingInterval();
+                    }else if(this.currentState === 'inactive'){
+                        this.on=false;
+                        this.off=true;
+                        this.docking=false;
+                    }
+                    else if(this.currentState === 'docked'){
+                        this.on=false;
+                        this.off=false;
+                        this.docking=true;
+                        this.startRefreshingInterval();
+                    }
+                    this.waitingForStartConfirmation=false;
+                    this.waitingForPauseConfirmation=false;
+                    this.waitingForDockConfirmation=false;
+                    this.waitingForSetLocationConfirmation=false;
+                    this.waitingForSetModeConfirmation=false;
+                })
+                .catch( (response) => {
+                    console.log("No se pudo recuperar el estado al abrir el Popup")
+                    console.log(response)
+                })
             })
-            .catch( () => {
-                console.log("No se pudo recuperar el estado al abrir el Popup")
-            })
+            .catch ( () => {
+                
+            }) 
+            
         },
         start() {
             this.waitingForStartConfirmation = true;
             const start = '/start';
-            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + 'dd6f02f652ebd1a2' + start)
+            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + start)
             .then( (response) => {
                 if(response.data.result === true) {
                     this.startRefreshingInterval();
@@ -276,7 +293,7 @@ export default {
         pause() {
             this.waitingForPauseConfirmation = true;
             const pause = '/pause';
-            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + 'dd6f02f652ebd1a2' + pause)
+            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + pause)
             .then( (response) => {
                 if(response.data.result === true) {
                     clearInterval(this.secondsUpdater)
@@ -291,7 +308,7 @@ export default {
         dock() {
             this.waitingForDockConfirmation = true;
             const dock = '/dock';
-            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + 'dd6f02f652ebd1a2' + dock)
+            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + dock)
             .then( (response) => {
                 if(response.data.result === true) {
                     this.startRefreshingInterval();
@@ -306,7 +323,7 @@ export default {
             this.waitingForSetModeConfirmation=true;
             console.log("New mode: " + selectObj);
             const action = '/setMode';
-            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + 'dd6f02f652ebd1a2' + action, [selectObj])
+            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + action, [selectObj])
             .then( () => {
                 this.getCurrentState();
             })
@@ -319,7 +336,7 @@ export default {
             this.waitingForSetLocationConfirmation=true;
             console.log("New location: " + selectObj);
             const action = '/setLocation';
-            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + 'dd6f02f652ebd1a2' + action, [selectObj])
+            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + action, [selectObj])
             .then( () => {
                 this.getCurrentState();
             })

@@ -1,7 +1,6 @@
 <template>
     <div>
         <v-container fluid>
-            <!-- <v-btn @click="testBtn">TEST</v-btn> -->
             <v-row>
                 <v-col cols="4" class="blue lighten-5">
                     <v-card class="mb-4">
@@ -29,13 +28,11 @@
                                     <v-card>
                                         <v-container>
                                             <v-row align="center">
-                                                <!-- <v-col cols="2"/> -->
                                                 <v-col align="center" color="blue lighten-3" class="pt-0 mt-0">
                                                     <div class="blue darken-1 pa-0 ma-0">
                                                         <v-icon size="60" class="pa-1 ma-1 white--text">mdi-plus</v-icon>
                                                     </div>
                                                 </v-col>
-                                                <!-- <v-col cols="2"/> -->
                                                 <v-col cols="12" align="center" class="pa-0 ma-0">
                                                     <p class="ma-0 pa-0 title">Add</p>
                                                 </v-col>
@@ -59,6 +56,8 @@
                 </v-col>
             </v-row>
         </v-container>
+
+        <v-btn @click=test>TEST</v-btn>
 
         <v-snackbar v-model="snackbar">
             {{objectDeleted}} deleted.
@@ -117,13 +116,16 @@
                     this.routinesEditButtonText = "Done"
                 else
                     this.routinesEditButtonText = "Edit"
+            },
+            test() {
+                this.snackbar = true
             }
         },
         mounted () {
             eventBus.$on("deletedSomething", function (objectName) {
-                console.log(objectName + " DELETED")
                 this.objectDeleted = objectName
                 this.snackbar = true
+                console.log("se borro " + this.objectDeleted + ": " + this.snackbar)
             });
         }
     }

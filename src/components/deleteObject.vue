@@ -37,7 +37,7 @@ export default {
     },
     methods: {
         deleteObject() {
-            eventBus.$emit("deletedSomething", this.deviceName);
+            eventBus.$emit("deletedSomething", this.name);
             switch (this.type) {
                 case "home": 
                     this.$homeStore.data.deleteHome(this.id)
