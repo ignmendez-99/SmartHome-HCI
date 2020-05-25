@@ -12,7 +12,7 @@
             <template v-if="!editing">
               {{deviceName}}
             </template>
-            <v-text-field v-if="editing" v-model="newName" dense filled/>
+            <v-text-field v-if="editing" v-model="newName" dense counter maxlength="25" filled/>
             <v-spacer></v-spacer>
             <v-btn color="blue lighten-1" small @click="closeCard">
                 <v-icon>mdi-close</v-icon>
@@ -72,9 +72,7 @@
               </v-row>
 
               <v-row justify="center" class="my-8">
-                <v-btn x-small @click="deleteDevice" class="red" fab v-show="editing">
-                  <v-icon>{{deleteIcon}}</v-icon>
-                </v-btn>
+                <deleteObject v-show="editing" :id="deviceId" :name="deviceName" :type="device"/>
                 <v-btn small @click="cancelPressed" class="mx-4" v-show="editing">CANCEL</v-btn>
                 <v-btn small @click="changeDeviceName" class="blue white--text" v-show="editing">DONE</v-btn>
                 <v-btn small @click="editPressed" v-show="!editing">EDIT</v-btn>
@@ -102,13 +100,20 @@
 </template>
 
 <script>
+
+import deleteObject from './deleteObject'
+
 export default {
     props: {
-      deviceId: String,
-      deviceName: String
+        deviceId: String,
+        deviceName: String
+    },
+    components: {
+        'deleteObject': deleteObject
     },
     data() {
     return {
+            device: "device",
       showCard: false,
       lightIsOn: false,
       lightIsOff: false,
@@ -118,7 +123,6 @@ export default {
       snackbar: false,  /////
 
       editing: false,
-      deleteIcon: "mdi-delete",
       newName: this.deviceName,
 
       status: "",
@@ -246,11 +250,6 @@ export default {
       this.errorText = message;
       this.timeout = duration;
     },
-      deleteDevice() {
-        this.editing = false
-        // ACA DEBERIA PREGUNTAR CON UN POPUP O ALGO!!!!!!!!!!!!!
-        this.$deviceStore.data.deleteDevice(this.deviceId)
-      },
       editPressed() {
         this.editing = true
       },

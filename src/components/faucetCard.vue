@@ -12,7 +12,7 @@
                         <template v-if="!editing">
                             {{deviceName}}
                         </template>
-                        <v-text-field v-if="editing" v-model="newName" dense filled/>
+                        <v-text-field v-if="editing" v-model="newName" dense counter maxlength="25" filled/>
                         <v-spacer></v-spacer>
                         <v-btn color="blue lighten-1" small @click="closeFaucetCard">
                             <v-icon>mdi-close</v-icon>
@@ -90,9 +90,7 @@
                             </v-row>
 
                             <v-row justify="center" class="mt-8">
-                                <v-btn x-small @click="deleteDevice" class="red" fab v-show="editing">
-                                    <v-icon>{{deleteIcon}}</v-icon>
-                                </v-btn>
+                                <deleteObject v-show="editing" :id="deviceId" :name="deviceName" :type="device"/>
                                 <v-btn small @click="cancelPressed" class="mx-4" v-show="editing">CANCEL</v-btn>
                                 <v-btn small @click="changeDeviceName" class="blue white--text" v-show="editing">DONE</v-btn>
                                 <v-btn small @click="editPressed" v-show="!editing">EDIT</v-btn>
@@ -120,13 +118,20 @@
 </template>
 
 <script>
+
+import deleteObject from './deleteObject'
+
 export default {
     props: {
         deviceId: String,
         deviceName: String
     },
+    components: {
+        'deleteObject': deleteObject
+    },
     data() {
         return {
+            device: "device",
             showCard: false,
             status: "Please wait...",
             switchState: true,
@@ -136,7 +141,6 @@ export default {
             snackbar: false,  /////
 
             editing: false,
-            deleteIcon: "mdi-delete",
             newName: this.deviceName,
             
             quantity: 0,
@@ -156,6 +160,7 @@ export default {
     methods: {
         closeFaucetCard() {
             this.showCard = false;
+            this.editing = false
             clearInterval(this.secondsUpdater);
         },
         turnOnOffFaucet() {     
@@ -310,11 +315,6 @@ export default {
             this.editing = false
             if (this.newName != this.deviceName)
                 this.$deviceStore.data.renameDevice(this.deviceId, this.newName)
-        },
-        deleteDevice() {
-            this.editing = false
-            // ACA DEBERIA PREGUNTAR CON UN POPUP O ALGO!!!!!!!!!!!!!
-            this.$deviceStore.data.deleteDevice(this.deviceId)
         },
         editPressed() {
             this.editing = true

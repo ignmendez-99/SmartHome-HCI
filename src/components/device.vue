@@ -163,6 +163,9 @@ export default {
         this.repeater = window.setInterval( () => {
             this.getStateAndIcon();
         }, 3000)
+    },
+    beforeDestroy() {
+        clearInterval(this.repeater)
     }
     
 }

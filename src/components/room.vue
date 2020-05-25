@@ -2,11 +2,13 @@
     <v-row class="mx-4">
         <p v-if="!editing" class="headline">{{roomName}}</p>
         
-        <v-text-field v-if="editing" v-model="newName" dense filled/>
+        <v-text-field v-if="editing" v-model="newName" dense counter maxlength="25" filled/>
 
-        <v-btn x-small @click="deleteRoom" class="red ml-4" fab v-show="editing">
+        <!-- <v-btn x-small @click="deleteRoom" class="red ml-4" fab v-show="editing">
             <v-icon>{{deleteIcon}}</v-icon>
-        </v-btn>
+        </v-btn> -->
+
+        <deleteObject v-show="editing" class="ml-4" :id="roomId" :name="roomName" :type="room"/>
 
         <v-spacer></v-spacer>
 
@@ -35,11 +37,13 @@
 <script>
 import device from "../components/device.vue"
 import addDevice from "../components/addDevice.vue"
+import deleteObject from "../components/deleteObject"
 
 export default {
     components: {
         'device': device,
-        'addDevice': addDevice
+        'addDevice': addDevice,
+        'deleteObject': deleteObject
     },
     props: {
         roomName: String,
@@ -47,6 +51,7 @@ export default {
     },
     data() {
         return{
+            room: "room",
             editing: false,
             nameString: "name",
             idString: "id",
@@ -77,12 +82,12 @@ export default {
             this.editing = false
             if (this.newName != this.roomName)
                 this.$roomStore.data.renameRoom(this.roomId, this.newName)
-        },
-        deleteRoom() {
-            this.editing = false
-            // ACA DEBERIA PREGUNTAR CON UN POPUP O ALGO!!!!!!!!!!!!!
-            this.$roomStore.data.deleteRoom(this.roomId)
         }
+        // deleteRoom() {
+        //     this.editing = false
+        //     // ACA DEBERIA PREGUNTAR CON UN POPUP O ALGO!!!!!!!!!!!!!
+        //     this.$roomStore.data.deleteRoom(this.roomId)
+        // }
     }
 }
 </script>

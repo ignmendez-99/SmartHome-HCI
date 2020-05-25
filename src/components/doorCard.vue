@@ -9,13 +9,10 @@
             <v-card>
                 <v-container>
                     <v-card-title class="headline blue lighten-4 pa-3" primary-title>
-                        <div v-if="editing">
-                            <v-text-field
-                                v-model="newDeviceName"
-                                maxlength="30"
-                            ></v-text-field>
-                        </div>
-                        <div v-else>{{deviceName}}</div>
+                        <template v-if="!editing">
+                            {{deviceName}}
+                        </template>
+                        <v-text-field v-if="editing" v-model="newName" class="mb-0" counter maxlength="25" dense filled/>
                         <v-spacer></v-spacer>
 
                         <v-btn color="blue lighten-1" small @click="closeDoorCard">
@@ -72,13 +69,27 @@
 
                             <v-container></v-container>
 
-                            <v-row align="center" justify="center">
-                                <v-btn class="mr-6" small color="red" v-show="editing">Delete</v-btn>
-                                <v-btn class="mr-6" small @click="editPressed">{{buttonText}}</v-btn>
+                            <v-row justify="center">
+                                <deleteObject v-show="editing" :id="deviceId" :name="deviceName" :type="device"/>
+                                <v-btn small @click="cancelPressed" class="mx-4" v-show="editing">CANCEL</v-btn>
+                                <v-btn small @click="changeDeviceName" class="blue white--text" v-show="editing">DONE</v-btn>
+                                <v-btn small @click="editPressed" v-show="!editing">EDIT</v-btn>
                             </v-row>
                         
                         </v-container>
                     </v-card-actions>
+
+                    <v-snackbar
+                        :timeout="timeout"
+                        left
+                        bottom
+                        multi-line
+                        v-model="snackbar"
+                        color="error"
+                    >
+                        <strong>{{ errorText }}</strong>
+                        <v-btn @click.native="snackbar = false">Close</v-btn>
+                    </v-snackbar>
 
                 </v-container>
             </v-card>
@@ -88,15 +99,22 @@
 
 
 <script>
+
+import deleteObject from './deleteObject'
+
 export default {
     props: {
-        deviceId: String
+        deviceId: String,
+        deviceName: String
+    },
+    components: {
+        'deleteObject': deleteObject
     },
     data() {
         return {
+            device: "device",
             showCard: false,
         
-            deviceName: "Puerta de franco",
             newDeviceName: "",
 
             currentState: "",
@@ -108,36 +126,24 @@ export default {
             locked: false,
             unlocked: true,
 
+            timeout: 6000,    /////
+            errorText: "",    // ERROR HANDLING
+            snackbar: false,  /////
+
             waitingForCloseConfirmation: false,
             waitingForOpenConfirmation: false,
             waitingForLockConfirmation: false,
             waitingForUnlockConfirmation: false,
 
             editing: false,
-            buttonText:"Edit",
+            newName: this.deviceName,
         }
     },
     methods: {
-        editPressed() {
-            this.editing = !this.editing
-            if(this.buttonText === "Edit"){
-                this.buttonText = "Done"
-            }else{
-                if(this.deviceName != this.newDeviceName){
-                    if(this.newDeviceName != ""){
-                        this.deviceName=this.newDeviceName
-                    }
-                }
-                this.buttonText = "Edit"
-            }
-        },
-        
         closeDoorCard(){
             this.showCard = false;
-            if(this.editing === true)
-                this.editing = false;
+            this.editing = false;
         },
-    
         doorManager(){
             const state = '/state';
             this.waitingForCloseConfirmation = true;
@@ -146,29 +152,33 @@ export default {
             this.waitingForUnlockConfirmation = true;
             this.axios.get('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + state)
             .then( (response) => {
-                this.currentState = response.data.result.status;
-                this.lockState = response.data.result.lock;
-                if(this.currentState === 'closed') {
-                    this.closed = true;
-                    this.opened = false;
-                } else if(this.currentState === 'opened') {
-                    this.closed = false;
-                    this.opened = true;
-                }
-                if(this.lockState === 'locked'){
-                    this.locked = true;
-                    this.unlocked = false;
-                } else if(this.lockState === 'unlocked'){
-                    this.locked = false;
-                    this.unlocked = true;
-                }
-            this.waitingForCloseConfirmation = false;
-            this.waitingForOpenConfirmation = false;
-            this.waitingForLockConfirmation = false;
-            this.waitingForUnlockConfirmation = false;
+                if(response.data.result.status != "undefined") {
+                    this.currentState = response.data.result.status;
+                    this.lockState = response.data.result.lock;
+                    if(this.currentState === 'closed') {
+                        this.closed = true;
+                        this.opened = false;
+                    } else if(this.currentState === 'opened') {
+                        this.closed = false;
+                        this.opened = true;
+                    }
+                    if(this.lockState === 'locked'){
+                        this.locked = true;
+                        this.unlocked = false;
+                    } else if(this.lockState === 'unlocked'){
+                        this.locked = false;
+                        this.unlocked = true;
+                    }
+                    this.waitingForCloseConfirmation = false;
+                    this.waitingForOpenConfirmation = false;
+                    this.waitingForLockConfirmation = false;
+                    this.waitingForUnlockConfirmation = false;
+                } 
+                else
+                    this.throwErrorMessage("Could not get Device state. Try again later.", 0);
             })
             .catch( () => {
-                console.log("No se pudo recuperar el estado al abrir el Popup")
+                this.throwErrorMessage("Could not get Device state. Try again later.", 0);
             })
         },
         // getCurrentState() {
@@ -200,12 +210,13 @@ export default {
                     this.opened = true;
                     this.closed = false;
                     this.currentState = 'opened';
-
-                    this.waitingForOpenConfirmation = false;
-                }
+                } else
+                    this.throwErrorMessage("Could not open door. Try again later.", 6000);
+                this.waitingForOpenConfirmation = false;
             })
             .catch( () => {
-                console.log("No se pudo abrir la puerta");
+                this.throwErrorMessage("Could not open door. Try again later.", 6000);
+                this.waitingForOpenConfirmation = false;
             })
         },
         closeDoor() {
@@ -217,12 +228,13 @@ export default {
                     this.opened = false;
                     this.closed = true;
                     this.currentState = 'closed';
-
-                    this.waitingForCloseConfirmation = false;
-                }
+                } else
+                    this.throwErrorMessage("Could not close door. Try again later.", 6000);
+                this.waitingForCloseConfirmation = false;
             })
             .catch( () => {
-                console.log("No se pudo cerrar la puerta");
+                this.throwErrorMessage("Could not close door. Try again later.", 6000);
+                this.waitingForCloseConfirmation = false;
             })
         },
         lockDoor() {
@@ -234,12 +246,13 @@ export default {
                     this.locked = true;
                     this.unlocked = false;
                     this.lockState = 'locked';
-
-                    this.waitingForLockConfirmation = false;
-                }
+                } else
+                    this.throwErrorMessage("Could not lock door. Try again later.", 6000);
+                this.waitingForLockConfirmation = false;
             })
             .catch( () => {
-                console.log("No se pudo trabar la puerta");
+                this.throwErrorMessage("Could not lock door. Try again later.", 6000);
+                this.waitingForLockConfirmation = false;
             })
         },
         unlockDoor() {
@@ -251,14 +264,27 @@ export default {
                     this.locked = false;
                     this.unlocked = true;
                     this.lockState = 'unlocked';
-
-                    this.waitingForUnlockConfirmation = false;
-                }
+                } else
+                    this.throwErrorMessage("Could not unlock door. Try again later.", 6000);
+                this.waitingForUnlockConfirmation = false;
             })
             .catch( () => {
-                console.log("No se pudo destrabar la puerta");
+                this.throwErrorMessage("Could not unlock door. Try again later.", 6000);
+                this.waitingForUnlockConfirmation = false;
             })
-        }
+        },
+        editPressed() {
+            this.editing = true
+        },
+        cancelPressed() {
+            this.newName = this.deviceName
+            this.editing = false
+        },
+        throwErrorMessage(message, duration) {
+            this.snackbar = true;
+            this.errorText = message;
+            this.timeout = duration;
+        },
     }
 }
 </script>

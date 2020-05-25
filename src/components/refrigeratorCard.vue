@@ -9,13 +9,10 @@
             <v-card>
                 <v-container>
                     <v-card-title class="headline blue lighten-4 pa-3" primary-title>
-                        <div v-if="editing">
-                            <v-text-field
-                                v-model="newDeviceName"
-                                maxlength="30"
-                            ></v-text-field>
-                        </div>
-                        <div v-else>{{deviceName}}</div>
+                        <template v-if="!editing">
+                            {{deviceName}}
+                        </template>
+                        <v-text-field v-if="editing" v-model="newName" dense counter maxlength="25" filled/>
                         <v-spacer></v-spacer>
 
                         <v-btn color="blue lighten-1" small @click="closeRefrigeratorCard">
@@ -69,13 +66,27 @@
 
                             <v-container></v-container>
 
-                            <v-row align="center" justify="center">
-                                <v-btn class="mr-6" small color="red" v-show="editing">Delete</v-btn>
-                                <v-btn class="mr-6" small @click="editPressed">{{buttonText}}</v-btn>
+                            <v-row justify="center">
+                                <deleteObject v-show="editing" :id="deviceId" :name="deviceName"  :type="device"/>
+                                <v-btn small @click="cancelPressed" class="mx-4" v-show="editing">CANCEL</v-btn>
+                                <v-btn small @click="changeDeviceName" class="blue white--text" v-show="editing">DONE</v-btn>
+                                <v-btn small @click="editPressed" v-show="!editing">EDIT</v-btn>
                             </v-row>
                         
                         </v-container>
                     </v-card-actions>
+
+                    <v-snackbar
+                        :timeout="timeout"
+                        left
+                        bottom
+                        multi-line
+                        v-model="snackbar"
+                        color="error"
+                    >
+                        <strong>{{ errorText }}</strong>
+                        <v-btn @click.native="snackbar = false">Close</v-btn>
+                    </v-snackbar>
 
                 </v-container>
             </v-card>
@@ -85,17 +96,24 @@
 
 
 <script>
+
+import deleteObject from './deleteObject'
+
 export default {
     props: {
-        deviceId: String
+        deviceId: String,
+        deviceName: String
+    },
+    components: {
+        'deleteObject': deleteObject
     },
     data() {
         return {
+            device: "device",
             showCard: false,
         
             modes: ["default", "vacation", "party"],
 
-            deviceName: "Heladera de franco",
             newDeviceName: "",
 
             slider: "",
@@ -104,42 +122,36 @@ export default {
             waitingForSetTempConfirmation: false,
             waitingForSetModeConfirmation: false,
 
+            timeout: 6000,    /////
+            errorText: "",    // ERROR HANDLING
+            snackbar: false,  /////
+
             freezerTemperature: "",
             fridgeTemperature: "",
             mode: "",
 
             editing: false,
-            buttonText:"Edit",
-        
+            newName: this.deviceName,
         }
     },
     methods: {
-        editPressed() {
-            this.editing = !this.editing
-            if(this.buttonText === "Edit"){
-                this.buttonText = "Done"
-            }else{
-                if(this.deviceName != this.newDeviceName){
-                    if(this.newDeviceName != ""){
-                        this.deviceName=this.newDeviceName
-                    }
-                }
-                this.buttonText = "Edit"
-            }
-        },
-        
         closeRefrigeratorCard(){
             this.showCard = false;
-            if(this.editing === true)
-                this.editing = false;
+            this.editing = false;
         },
         getCurrentState() {
             const state = '/state';
             this.axios.get('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + state)
             .then( (response) => {
-                this.freezerTemperature = response.data.result.freezerTemperature;
-                this.fridgeTemperature = response.data.result.temperature;
-                this.mode = response.data.result.mode;
+                if(response.data.result.temperature != "undefined") {
+                    this.freezerTemperature = response.data.result.freezerTemperature;
+                    this.fridgeTemperature = response.data.result.temperature;
+                    this.mode = response.data.result.mode;
+                } else
+                    this.throwErrorMessage("Could not get Device state. Try again later.", 0);
+            })
+            .catch( () => {
+                this.throwErrorMessage("Could not get Device state. Try again later.", 0);
             })
         },
         refrigeratorManager(){
@@ -149,55 +161,75 @@ export default {
             this.waitingForSetModeConfirmation = true;
             this.axios.get('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + state)
             .then( (response) => {
-                this.freezerTemperature = response.data.result.freezerTemperature;
-                this.fridgeTemperature = response.data.result.temperature;
-                this.mode = response.data.result.mode;
-            this.waitingForSetFreezerTempConfirmation = false;
-            this.waitingForSetTempConfirmation = false;
-            this.waitingForSetModeConfirmation = false;
+                if(response.data.result.temperature != "undefined") {
+                    this.freezerTemperature = response.data.result.freezerTemperature;
+                    this.fridgeTemperature = response.data.result.temperature;
+                    this.mode = response.data.result.mode;
+                    this.waitingForSetFreezerTempConfirmation = false;
+                    this.waitingForSetTempConfirmation = false;
+                    this.waitingForSetModeConfirmation = false;
+                } else
+                    this.throwErrorMessage("Could not get Device state. Try again later.", 0);
             })
             .catch( () => {
-                console.log("No se pudo recuperar el estado al abrir el Popup")
+                this.throwErrorMessage("Could not get Device state. Try again later.", 0);
             })
         },
         setFreezerTemperature(selectObj) {
             this.waitingForSetFreezerTempConfirmation=true;
-            console.log("New freezer temperature: " + selectObj);
             const action = '/setFreezerTemperature';
             this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + action, [selectObj])
             .then( () => {
                 this.getCurrentState();
+                this.waitingForSetFreezerTempConfirmation=false;
             })
             .catch( () => {
-                console.log("No se pudo cambiar la temperatura del freezer");
+                this.throwErrorMessage("Could not set freezer temperature. Try again later.", 6000);
+                this.waitingForSetFreezerTempConfirmation=false;
             })
-            this.waitingForSetFreezerTempConfirmation=false;
         },
         setTemperature(selectObj) {
             this.waitingForSetTempConfirmation=true;
-            console.log("New temperature: " + selectObj);
             const action = '/setTemperature';
             this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + action, [selectObj])
             .then( () => {
                 this.getCurrentState();
+                this.waitingForSetTempConfirmation=false;
             })
             .catch( () => {
-                console.log("No se pudo cambiar la temperatura");
+                this.throwErrorMessage("Could not set temperature. Try again later.", 6000);
+                this.waitingForSetTempConfirmation=false;
             })
-            this.waitingForSetTempConfirmation=false;
         },
         setMode(selectObj) {
             this.waitingForSetModeConfirmation=true;
-            console.log("New mode: " + selectObj);
             const action = '/setMode';
             this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + action, [selectObj])
             .then( () => {
                 this.getCurrentState();
+                this.waitingForSetModeConfirmation=false;
             })
             .catch( () => {
-                console.log("No se pudo cambiar el modo");
+                this.throwErrorMessage("Could not set mode. Try again later.", 6000);
+                this.waitingForSetModeConfirmation=false;
             })
-            this.waitingForSetModeConfirmation=false;
+        },
+        throwErrorMessage(message, duration) {
+            this.snackbar = true;
+            this.errorText = message;
+            this.timeout = duration;
+        },
+        changeDeviceName() {
+            this.editing = false
+            if (this.newName != this.deviceName)
+                this.$deviceStore.data.renameDevice(this.deviceId, this.newName)
+        },
+        editPressed() {
+            this.editing = true
+        },
+        cancelPressed() {
+            this.newName = this.deviceName
+            this.editing = false
         }
     }
 }

@@ -2,10 +2,12 @@
     <v-row>
         <p v-if="!editing" class="headline">{{homeName}}</p>
         
-        <v-text-field v-if="editing" v-model="newName" dense filled/>
-        <v-btn x-small @click="deleteHome" class="red ml-4" fab v-show="editing">
+        <v-text-field v-if="editing" v-model="newName" dense counter maxlength="25" filled/>
+        <!-- <v-btn x-small @click="deleteHome" class="red ml-4" fab v-show="editing">
             <v-icon>{{deleteIcon}}</v-icon>
-        </v-btn>
+        </v-btn> -->
+
+        <deleteObject v-show="editing" class="ml-4" :id="homeId" :name="homeName" :type="home"/>
 
         <v-spacer></v-spacer>
 
@@ -32,11 +34,13 @@
 <script>
 import room from "../components/room.vue"
 import addRoom from "../components/addRoom.vue"
+import deleteObject from "../components/deleteObject"
 
 export default {
     components: {
         'room': room,
-        'addRoom': addRoom
+        'addRoom': addRoom,
+        'deleteObject': deleteObject
     },
     props: {
         homeName: String,
@@ -44,6 +48,7 @@ export default {
     },
     data() {
         return{
+            home: "home",
             expand: false,
             nameString: "name",
             idString: "id",
@@ -74,12 +79,12 @@ export default {
             this.editing = false
             if (this.newName != this.homeName)
                 this.$homeStore.data.renameHome(this.homeId, this.newName)
-        },
-        deleteHome() {
-            this.editing = false
-            // ACA DEBERIA PREGUNTAR CON UN POPUP O ALGO!!!!!!!!!!!!!
-            this.$homeStore.data.deleteHome(this.homeId)
         }
+        // deleteHome() {
+        //     this.editing = false
+        //     // ACA DEBERIA PREGUNTAR CON UN POPUP O ALGO!!!!!!!!!!!!!
+        //     this.$homeStore.data.deleteHome(this.homeId)
+        // }
     }
 }
 </script>
