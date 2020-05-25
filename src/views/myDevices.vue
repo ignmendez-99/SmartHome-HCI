@@ -59,6 +59,13 @@
                 </v-col>
             </v-row>
         </v-container>
+
+        <v-snackbar v-model="snackbar">
+            {{objectDeleted}} deleted.
+            <v-btn color="blue" text @click="snackbar = false">
+                Close
+            </v-btn>
+        </v-snackbar>
     </div>
 </template>
 
@@ -81,6 +88,7 @@
     import routine from "../components/routine.vue"
     import home from "../components/home.vue"
     import addHome from "../components/addHome.vue"
+    import eventBus from '../eventBus';
 
     export default {
         components: {
@@ -97,7 +105,9 @@
                 routines: ["hola", "chau", "que tal", "todo bien", "FRANCO NAVARRO"],
                 expand: false,
                 editingRoutines: false,
-                routinesEditButtonText: "Edit"
+                routinesEditButtonText: "Edit",
+                snackbar: false,
+                objectDeleted: ""
             }
         },
         methods: {
@@ -108,6 +118,13 @@
                 else
                     this.routinesEditButtonText = "Edit"
             }
+        },
+        mounted () {
+            eventBus.$on("deletedSomething", function (objectName) {
+                console.log(objectName + " DELETED")
+                this.objectDeleted = objectName
+                this.snackbar = true
+            });
         }
     }
 </script>

@@ -6,7 +6,7 @@
                 <v-btn class="pa-0 ma-0" height="250" depressed block color="transparent transparent--text" v-on="on" @click="speakerManager">Click Me</v-btn>
             </template>
 
-            <v-card min-height="462">
+            <v-card min-height="550">
                 <v-container>
                     <v-card-title class="headline blue lighten-4 pa-3" primary-title>
                         <template v-if="!editing">
@@ -23,7 +23,7 @@
                         <v-container class="pb-0">
                             <v-row justify="center" class="mb-4">
                                 <v-btn color="grey lighten-2 mr-1" v-show="songPlaying" @click="previousSong" :loading="waitingForPreviousSong">
-                                    <v-icon>mdi-arrow-collapse-left</v-icon>
+                                    <v-icon>mdi-skip-backward</v-icon>
                                 </v-btn>
                                 <v-btn color="grey lighten-2 mx-1" v-if="!songPlaying" @click="playOrResumeSong" :loading="waitingForPlaySong">
                                     <v-icon>mdi-play</v-icon>
@@ -35,7 +35,7 @@
                                     <v-icon>mdi-stop</v-icon>
                                 </v-btn>
                                 <v-btn color="grey lighten-2 ml-1" v-show="songPlaying" @click="nextSong" :loading="waitingForNextSong">
-                                    <v-icon>mdi-arrow-collapse-right</v-icon>
+                                    <v-icon>mdi-skip-forward</v-icon>
                                 </v-btn>
                             </v-row>
                             <v-row justify="center" class="mb-3 mt-10">
@@ -95,9 +95,7 @@
                     </v-card>
 
                     <v-row justify="center" class="mt-8 mb-6">
-                        <v-btn x-small @click="deleteDevice" class="red" fab v-show="editing">
-                            <v-icon>{{deleteIcon}}</v-icon>
-                        </v-btn>
+                        <deleteObject v-show="editing" :id="deviceId" :name="deviceName" :type="device"/>
                         <v-btn small @click="cancelPressed" class="mx-4" v-show="editing">CANCEL</v-btn>
                         <v-btn small @click="changeDeviceName" class="blue white--text" v-show="editing">DONE</v-btn>
                         <v-btn small @click="editPressed" v-show="!editing">EDIT</v-btn>
@@ -125,13 +123,19 @@
 
 <script>
 
+import deleteObject from './deleteObject'
+
 export default {
     props: {
         deviceId: String,
         deviceName: String
     },
+    components: {
+        'deleteObject': deleteObject
+    },
     data () {
         return {
+            device: "device",
             dialog: false,
             songPlaying: false,
             songInDisplay: false,
@@ -147,7 +151,6 @@ export default {
             snackbar: false,  /////
 
             editing: false,
-            deleteIcon: "mdi-delete",
             newName: this.deviceName,
 
             waitingForPreviousSong: false,
@@ -414,11 +417,6 @@ export default {
             this.editing = false
             if (this.newName != this.deviceName)
                 this.$deviceStore.data.renameDevice(this.deviceId, this.newName)
-        },
-        deleteDevice() {
-            this.editing = false
-            // ACA DEBERIA PREGUNTAR CON UN POPUP O ALGO!!!!!!!!!!!!!
-            this.$deviceStore.data.deleteDevice(this.deviceId)
         },
         editPressed() {
             this.editing = true
