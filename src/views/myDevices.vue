@@ -11,10 +11,6 @@
                                 <p class="pa-0 ma-0 headline">Routines</p>
                             </v-col>
 
-                            <v-col cols="2">
-                                <v-btn @click="editRoutinesPressed" small>{{routinesEditButtonText}}</v-btn>
-                            </v-col>
-
                             <v-col cols="1"></v-col>
                         </v-row>
                     </v-card>
@@ -94,15 +90,6 @@
                 snackbar: false,
                 objectDeleted: "",
                 routineUpdater: 0
-            }
-        },
-        methods: {
-            editRoutinesPressed() {
-                this.editingRoutines = !this.editingRoutines
-                if(this.routinesEditButtonText === "Edit")
-                    this.routinesEditButtonText = "Done"
-                else
-                    this.routinesEditButtonText = "Edit"
             }
         },
         mounted () {

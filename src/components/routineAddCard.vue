@@ -28,7 +28,7 @@
                         </v-row>
                 
                         <v-row justify="center" class="mt-8">
-                            <v-btn @click="cancel = false">CANCEL</v-btn>
+                            <v-btn @click="cancel">CANCEL</v-btn>
                             <v-btn @click="showAddAction = true" color="blue lighten-1 white--text" class="mx-4">ADD ACTION</v-btn>
                             <v-btn @click="finish" color="blue lighten-1 white--text" :disabled="actionsToAdd.length === 0 || routineName.length === 0">DONE</v-btn>
                         </v-row>
@@ -140,7 +140,8 @@ export default {
             this.showAddAction = false
         },
         cancel() {
-            this.actionToAdd = []
+            this.actionsToAdd = []
+            this.routineName = ""
             this.showCard = false
         },
         finish() {
@@ -168,6 +169,9 @@ export default {
                 console.log("ERROR AL CREAR LA RUTINA")
             })
             eventBus.$emit("routineAdded", "ROUTINE ADDED")
+            this.actionsToAdd = []
+            this.routineName = ""
+
             this.showCard = false
 
 

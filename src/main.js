@@ -119,7 +119,7 @@ const roomStore = Vue.observable({
               } else {
                 aux = roomStore.data.roomsByHome.get(homeId)
               }
-              aux.push(response.daata.result)
+              aux.push(response.data.result)
               roomStore.data.roomsByHome.set(homeId, aux)
               console.log("SUCCESS")
             })
@@ -309,7 +309,7 @@ const routineStore = Vue.observable({
     },
 
     deleteRoutine(id) {
-      axios.delete(genericUrl + "routines/" + id)
+      axios.delete(genericUrl + "routines/" + id, {})
       .then( () => {
         this.getAllRoutines()
       })

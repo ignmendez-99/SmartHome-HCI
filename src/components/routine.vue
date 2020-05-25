@@ -9,16 +9,32 @@
                         </div>
                     </v-col>
                 </v-row>
+                <v-divider :v-if="editing"/>
+                <v-row justify="center">
+                    <deleteObject class="mt-2" :id="id" :name="name" :type="routine"/>
+                </v-row>
             </v-container>
         </v-card>
     </v-col>
 </template>
 
 <script>
+
+import deleteObject from './deleteObject'
+
 export default {
     props: {
         name: String,
         id: String
+    },
+    components: {
+        'deleteObject': deleteObject
+    },
+    data () {
+        return {
+            editing: false,
+            routine: "routine"
+        }
     },
     methods: {
         execute() {

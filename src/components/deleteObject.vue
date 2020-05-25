@@ -48,6 +48,9 @@ export default {
                 case "device":
                     this.$deviceStore.data.deleteDevice(this.id)
                     break
+                case "routine":
+                    this.$routineStore.data.deleteRoutine(this.id)
+                    break
             }
         }
     }

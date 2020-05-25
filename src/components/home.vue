@@ -80,11 +80,6 @@ export default {
             if (this.newName != this.homeName)
                 this.$homeStore.data.renameHome(this.homeId, this.newName)
         }
-        // deleteHome() {
-        //     this.editing = false
-        //     // ACA DEBERIA PREGUNTAR CON UN POPUP O ALGO!!!!!!!!!!!!!
-        //     this.$homeStore.data.deleteHome(this.homeId)
-        // }
     }
 }
 </script>
