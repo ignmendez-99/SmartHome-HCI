@@ -107,7 +107,7 @@ export default {
     methods: {
         routineManager() {
             this.showCard = true;
-            this.axios.get('http://127.0.0.1:8081/api/' + 'devices')
+            this.axios.get(this.$genericUrl + 'devices')
             .then( (response) => {
                 this.myDevices = response.data.result;
                 this.myDevices.forEach( (device) => {
@@ -141,7 +141,7 @@ export default {
             }
         },
         // goToStepTwo() {
-        //     // this.axios.get('http://127.0.0.1:8081/api/' + 'devicetypes')
+        //     // this.axios.get(this.$genericUrl + 'devicetypes')
         //     // .then( (response) => {
         //     //     response.data.result.forEach( (deviceType) => {
         //     //         this.deviceTypes.push(deviceType);

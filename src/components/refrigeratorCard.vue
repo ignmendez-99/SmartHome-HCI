@@ -141,7 +141,7 @@ export default {
         },
         getCurrentState() {
             const state = '/state';
-            this.axios.get('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + state)
+            this.axios.get(this.$genericUrl + 'devices/' + this.deviceId + state)
             .then( (response) => {
                 if(response.data.result.temperature != "undefined") {
                     this.freezerTemperature = response.data.result.freezerTemperature;
@@ -159,7 +159,7 @@ export default {
             this.waitingForSetFreezerTempConfirmation = true;
             this.waitingForSetTempConfirmation = true;
             this.waitingForSetModeConfirmation = true;
-            this.axios.get('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + state)
+            this.axios.get(this.$genericUrl + 'devices/' + this.deviceId + state)
             .then( (response) => {
                 if(response.data.result.temperature != "undefined") {
                     this.freezerTemperature = response.data.result.freezerTemperature;
@@ -178,7 +178,7 @@ export default {
         setFreezerTemperature(selectObj) {
             this.waitingForSetFreezerTempConfirmation=true;
             const action = '/setFreezerTemperature';
-            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + action, [selectObj])
+            this.axios.put(this.$genericUrl + 'devices/' + this.deviceId + action, [selectObj])
             .then( () => {
                 this.getCurrentState();
                 this.waitingForSetFreezerTempConfirmation=false;
@@ -191,7 +191,7 @@ export default {
         setTemperature(selectObj) {
             this.waitingForSetTempConfirmation=true;
             const action = '/setTemperature';
-            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + action, [selectObj])
+            this.axios.put(this.$genericUrl + 'devices/' + this.deviceId + action, [selectObj])
             .then( () => {
                 this.getCurrentState();
                 this.waitingForSetTempConfirmation=false;
@@ -204,7 +204,7 @@ export default {
         setMode(selectObj) {
             this.waitingForSetModeConfirmation=true;
             const action = '/setMode';
-            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + action, [selectObj])
+            this.axios.put(this.$genericUrl + 'devices/' + this.deviceId + action, [selectObj])
             .then( () => {
                 this.getCurrentState();
                 this.waitingForSetModeConfirmation=false;

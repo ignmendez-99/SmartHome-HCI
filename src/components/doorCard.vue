@@ -150,7 +150,7 @@ export default {
             this.waitingForOpenConfirmation = true;
             this.waitingForLockConfirmation = true;
             this.waitingForUnlockConfirmation = true;
-            this.axios.get('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + state)
+            this.axios.get(this.$genericUrl + 'devices/' + this.deviceId + state)
             .then( (response) => {
                 if(response.data.result.status != "undefined") {
                     this.currentState = response.data.result.status;
@@ -181,30 +181,10 @@ export default {
                 this.throwErrorMessage("Could not get Device state. Try again later.", 0);
             })
         },
-        // getCurrentState() {
-            // const state = '/state';
-            // this.axios.get('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + state)
-            // .then( (response) => {
-            //     this.levelOfObscurity = response.data.result.level;
-            //     this.currentLevel = response.data.result.currentLevel;
-            //     this.currentState = response.data.result.status;
-            //     if(this.currentState === 'closed') {
-            //         this.closing = true;
-            //         this.fullyOpenedOrClosed = true;
-            //         this.opening = false;
-            //     } else if(this.currentState === 'opened') {
-            //         this.closing = false;
-            //         this.fullyOpenedOrClosed = true;
-            //         this.opening = true;
-            //     }
-            //     this.waitingForSetLevelConfirmation = false;
-            //     this.readyToChangeObscurityLevel = false;
-            // })
-        // },
         openDoor() {
             this.waitingForOpenConfirmation = true;
             const open = '/open';
-            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + open)
+            this.axios.put(this.$genericUrl + 'devices/' + this.deviceId + open)
             .then( (response) => {
                 if(response.data.result === true) {
                     this.opened = true;
@@ -222,7 +202,7 @@ export default {
         closeDoor() {
             this.waitingForCloseConfirmation = true;
             const close = '/close';
-            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + close)
+            this.axios.put(this.$genericUrl + 'devices/' + this.deviceId + close)
             .then( (response) => {
                 if(response.data.result === true) {
                     this.opened = false;
@@ -240,7 +220,7 @@ export default {
         lockDoor() {
             this.waitingForLockConfirmation = true;
             const close = '/lock';
-            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + close)
+            this.axios.put(this.$genericUrl + 'devices/' + this.deviceId + close)
             .then( (response) => {
                 if(response.data.result === true) {
                     this.locked = true;
@@ -258,7 +238,7 @@ export default {
         unlockDoor() {
             this.waitingForUnlockConfirmation = true;
             const close = '/unlock';
-            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + close)
+            this.axios.put(this.$genericUrl + 'devices/' + this.deviceId + close)
             .then( (response) => {
                 if(response.data.result === true) {
                     this.locked = false;
@@ -272,6 +252,11 @@ export default {
                 this.throwErrorMessage("Could not unlock door. Try again later.", 6000);
                 this.waitingForUnlockConfirmation = false;
             })
+        },
+        changeDeviceName() {
+            this.editing = false
+            if (this.newName != this.deviceName)
+                this.$deviceStore.data.renameDevice(this.deviceId, this.newName)
         },
         editPressed() {
             this.editing = true

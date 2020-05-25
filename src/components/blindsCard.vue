@@ -139,7 +139,7 @@ export default {
             this.waitingForCloseConfirmation = true;
             this.waitingForOpenConfirmation = true;
             this.waitingForSetLevelConfirmation = true; 
-            this.axios.get('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + state)
+            this.axios.get(this.$genericUrl + 'devices/' + this.deviceId + state)
             .then( (response) => {
                 if(response.data.result.level != "undefined") {
                     this.levelOfObscurity = response.data.result.level;
@@ -175,7 +175,7 @@ export default {
         startIntervalTimer() {
             this.fullyOpenedOrClosed = false;
             this.secondsUpdater = window.setInterval( () => {
-                this.axios.get('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + '/state')
+                this.axios.get(this.$genericUrl + 'devices/' + this.deviceId + '/state')
                 .then( (response) => {
                     if(response.data.result.level != "undefined") {
                         this.levelOfObscurity = response.data.result.level;
@@ -211,7 +211,7 @@ export default {
         },
         getCurrentState() {
             const state = '/state';
-            this.axios.get('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + state)
+            this.axios.get(this.$genericUrl + 'devices/' + this.deviceId + state)
             .then( (response) => {
                 if(response.data.result.level != "undefined") {
                     this.levelOfObscurity = response.data.result.level;
@@ -242,7 +242,7 @@ export default {
         openBlinds() {
             this.waitingForOpenConfirmation = true;
             const open = '/open';
-            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + open)
+            this.axios.put(this.$genericUrl + 'devices/' + this.deviceId + open)
             .then( (response) => {
                 if(response.data.result === true) {
                     this.opening = true;
@@ -264,7 +264,7 @@ export default {
         closeBlinds() {
             this.waitingForCloseConfirmation = true;
             const close = '/close';
-            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + close)
+            this.axios.put(this.$genericUrl + 'devices/' + this.deviceId + close)
             .then( (response) => {
                 if(response.data.result === true) {
                     this.opening = false;
@@ -286,7 +286,7 @@ export default {
         },
         changeObscurityLevel(selectObj) {
             const setLevel = '/setLevel';
-            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + setLevel, [selectObj])
+            this.axios.put(this.$genericUrl + 'devices/' + this.deviceId + setLevel, [selectObj])
             .then( () => {
                 this.getCurrentState();
             })

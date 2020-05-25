@@ -140,7 +140,7 @@ export default {
       this.waitingTurnOn = true;
       const turnOn = '/turnOn';
       if(this.lightIsOff) {
-        this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + turnOn)
+        this.axios.put(this.$genericUrl + 'devices/' + this.deviceId + turnOn)
         .then( (response) => {
           if(response.data.result === true) {
             this.lightIsOn = true;
@@ -162,7 +162,7 @@ export default {
       this.waitingTurnOff = true;
       const turnOff = '/turnOff';
       if(this.lightIsOn) {
-        this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + turnOff)
+        this.axios.put(this.$genericUrl + 'devices/' + this.deviceId + turnOff)
         .then( (response) => {
           if(response.data.result === true) {
             this.lightIsOn = false;
@@ -187,7 +187,7 @@ export default {
       this.waitingForChangeBrightness = true;
       this.waitingForColorChange = true;
       const state = '/state';
-      this.axios.get('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + state)
+      this.axios.get(this.$genericUrl + 'devices/' + this.deviceId + state)
       .then( (response) => {
         this.lightColor = response.data.result.color;
         this.lightBrightness = response.data.result.brightness;
@@ -215,7 +215,7 @@ export default {
     changeBrightness(selectObj) {
       this.waitingForChangeBrightness = true;
       const action = '/setBrightness';
-      this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + action, [selectObj])
+      this.axios.put(this.$genericUrl + 'devices/' + this.deviceId + action, [selectObj])
       .then( () => {
         this.waitingForChangeBrightness = false;
       })
@@ -236,7 +236,7 @@ export default {
       this.waitingForColorChange = true;
       const action = '/setColor';
       const RGBcolor = this.lightColor.substring(1, 7);
-      this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + action, [RGBcolor])
+      this.axios.put(this.$genericUrl + 'devices/' + this.deviceId + action, [RGBcolor])
       .then( () => {
         this.waitingForColorChange = false;
       })

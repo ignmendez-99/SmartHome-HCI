@@ -174,7 +174,7 @@ export default {
             const state = '/state';
             this.waitingDispensing = true;
             this.waitingForResponse = true;
-            this.axios.get('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + state)
+            this.axios.get(this.$genericUrl + 'devices/' + this.deviceId + state)
             .then( (response) => {
                 if(response.data.result.status != "undefined") {
                     this.status = response.data.result.status;
@@ -206,11 +206,11 @@ export default {
         },
         open() {
             const open = '/open';
-            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + open)
+            this.axios.put(this.$genericUrl + 'devices/' + this.deviceId + open)
             .then( () => {
                 this.switchState = true;
                 this.status = 'opened';
-                this.axios.get('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + '/state')
+                this.axios.get(this.$genericUrl + 'devices/' + this.deviceId + '/state')
                 .then( (response) => {
                     if(typeof response.data.result.quantity != "undefined") {
                         this.getDispensedData(response.data.result);
@@ -234,7 +234,7 @@ export default {
         },
         close() {
             const close = '/close';
-            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + close)
+            this.axios.put(this.$genericUrl + 'devices/' + this.deviceId + close)
             .then( () => {
                 this.switchState = false;                
                 this.status = 'closed';
@@ -262,7 +262,7 @@ export default {
         },
         startDispenseInterval: function() {
             this.secondsUpdater = window.setInterval( () => {
-                this.axios.get('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + '/state')
+                this.axios.get(this.$genericUrl + 'devices/' + this.deviceId + '/state')
                 .then( (response) => {
                     if(typeof response.data.result.dispensedQuantity != "undefined")
                         this.dispensedQuantity = Math.floor((response.data.result.dispensedQuantity * 100) / this.quantity);
@@ -286,7 +286,7 @@ export default {
         startDispense() {
             const action = '/dispense';
             this.waitingDispensing = true;
-            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + action, 
+            this.axios.put(this.$genericUrl + 'devices/' + this.deviceId + action, 
                 [this.quantityToDispense, this.unitToDispense.toString()] )
             .then( (response) => {
                 if(response.data.result === true) {

@@ -71,13 +71,12 @@ export default {
             status2: " ",
             status3: " ",
             repeater: 0,
-            genericUrl: 'http://127.0.0.1:8081/api/',
             icon: ""
         }
     },
     methods: {
         getStateAndIcon() {
-            this.axios.get(this.genericUrl + "devices/" + this.deviceId + "/state", {})
+            this.axios.get(this.$genericUrl + "devices/" + this.deviceId + "/state", {})
             .then ( (response) => {
                 switch(this.deviceTypeId) {
                     case "c89b94e8581855bc":    // speaker

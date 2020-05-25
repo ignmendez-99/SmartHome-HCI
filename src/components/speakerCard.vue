@@ -179,7 +179,7 @@ export default {
                 else 
                     action = '/play';
                 
-                this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + action)
+                this.axios.put(this.$genericUrl + 'devices/' + this.deviceId + action)
                 .then( (response) => {
                     if(response.data.result === true) {
                         if(!this.songInDisplay) {
@@ -206,7 +206,7 @@ export default {
             this.waitingForPauseSong = true;
             const pauseAction = '/pause';
             if(this.songPlaying === true) {
-                this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + pauseAction)
+                this.axios.put(this.$genericUrl + 'devices/' + this.deviceId + pauseAction)
                 .then( (response) => {
                     if(response.data.result === true) {
                         this.songPlaying = false;
@@ -228,7 +228,7 @@ export default {
             this.waitingForStopSong = true;
             const stopAction = '/stop';
             if(this.songInDisplay === true) {
-                this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + stopAction)
+                this.axios.put(this.$genericUrl + 'devices/' + this.deviceId + stopAction)
                 .then( (response) => {
                     if(response.data.result === true) {
                         this.songPlaying = false;
@@ -252,7 +252,7 @@ export default {
         },
         setVolume: function() {
             const action = '/setVolume';
-            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + action, [this.volumeNumber])
+            this.axios.put(this.$genericUrl + 'devices/' + this.deviceId + action, [this.volumeNumber])
             .catch( () => {
                 this.throwErrorMessage("Could not set volume. Try again later.", 6000);
             })
@@ -260,7 +260,7 @@ export default {
         previousSong: function() {
             this.waitingForPreviousSong = true;
             const action = '/previousSong';
-            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + action)
+            this.axios.put(this.$genericUrl + 'devices/' + this.deviceId + action)
             .then( (response) => {
                 if(response.data.result === true) {
                     this.getStateOfCurrentSong();
@@ -277,7 +277,7 @@ export default {
         nextSong: function() {
             this.waitingForNextSong = true;
             const action = '/nextSong';
-            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + action)
+            this.axios.put(this.$genericUrl + 'devices/' + this.deviceId + action)
             .then( (response) => {
                 if(response.data.result === true) {
                     this.getStateOfCurrentSong();
@@ -300,7 +300,7 @@ export default {
             this.waitingForStopSong = true;
             this.waitingForNextSong = true;
 
-            this.axios.get('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + state)
+            this.axios.get(this.$genericUrl + 'devices/' + this.deviceId + state)
             .then( (response) => {
                 if(response.data.result.status != "undefined") {
                     if(response.data.result.status === 'playing' || response.data.result.status === 'paused') {
@@ -345,7 +345,7 @@ export default {
             })
         },
         getStateOfCurrentSong: function() {
-            this.axios.get('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + '/state')
+            this.axios.get(this.$genericUrl + 'devices/' + this.deviceId + '/state')
             .then( (response) => {
                 if(response.data.result.song != "undefined") {
                     this.songTitle = response.data.result.song.title;
@@ -398,7 +398,7 @@ export default {
         },
         changeGenre(selectObj) {
             const action = '/setGenre'
-            this.axios.put('http://127.0.0.1:8081/api/' + 'devices/' + this.deviceId + action, [selectObj])
+            this.axios.put(this.$genericUrl + 'devices/' + this.deviceId + action, [selectObj])
             .catch( () => {
                 this.throwErrorMessage("Could not change music genre. Try again later.", 6000);
             })
