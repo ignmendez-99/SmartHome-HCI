@@ -2,6 +2,7 @@
     <div>
         <doorCard/>
         <refrigeratorCard/>
+        <vacuumCard/>
 
         <v-container>
             <v-row class="my-5">
@@ -122,10 +123,12 @@
 <script>
     import doorCard from '../components/doorCard.vue'
     import refrigeratorCard from '../components/refrigeratorCard.vue'
+    import vacuumCard from '../components/vacuumCard.vue'
     export default {
         components: {
             'doorCard' : doorCard,
-            'refrigeratorCard': refrigeratorCard
+            'refrigeratorCard': refrigeratorCard,
+            'vacuumCard': vacuumCard
         },
         data() {
             return{
